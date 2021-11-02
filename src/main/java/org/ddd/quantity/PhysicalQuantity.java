@@ -1,9 +1,6 @@
 package org.ddd.quantity;
 
-import org.ddd.unit.CompoundUnit;
-import org.ddd.unit.ConversionRate;
-import org.ddd.unit.MeasurementUnit;
-import org.ddd.unit.UnitWithPower;
+import org.ddd.unit.*;
 import org.ddd.util.NumberUtil;
 
 /**
@@ -15,7 +12,6 @@ import org.ddd.util.NumberUtil;
  * 如：100cm + 1m = 200cm， 100cm * 1m = 10000cm^2。
  * 3. 比较。两个同量度 {@link org.ddd.unit.Measurement} 的数量应该具有比较的功能，数量的单位不同的情况下，需要转换成相同的单位。
  * 如：180cm > 175cm, 6kg > 5000g等。
- *
  *
  * @author chenjx
  */
