@@ -1,8 +1,4 @@
-package org.ddd.quantity;
-
-import org.ddd.unit.CompoundUnit;
-import org.ddd.unit.MeasurementUnit;
-import org.ddd.unit.UnitFactory;
+package org.ddd.unit;
 
 /**
  *
@@ -17,7 +13,7 @@ public class QuantityFactory {
     }
 
     public PhysicalQuantity of(Number value, String symbol){
-        MeasurementUnit unit = unitFactory.getUnit(symbol);
+        Unit unit = unitFactory.getUnit(symbol);
         if (unit == null) {
             throw new IllegalArgumentException("无效的单位符号");
         }

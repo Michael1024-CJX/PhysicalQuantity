@@ -36,7 +36,7 @@ public class YamlConverter {
             }
             String[] strArr = ratio.split("[:=]");
             ConversionRateDefinition definition = new ConversionRateDefinition();
-            definition.setPhysicalQuantity(type);
+            definition.setMeasurement(type);
             if (strArr.length == 1) {
                 UnitDefinition unitDefinition = convertUnit(type, strArr[0]);
                 unitDefinitions.add(unitDefinition);
@@ -62,7 +62,7 @@ public class YamlConverter {
         }else {
             unitDefinition.setAlias(split[1]);
         }
-        unitDefinition.setPhysicalQuantity(type);
+        unitDefinition.setMeasurement(type);
         unitDefinition.setSymbol(split[0]);
         return unitDefinition;
     }

@@ -6,7 +6,7 @@ import java.util.Collection;
  * @author chenjx
  */
 public interface UnitRegister {
-    Collection<String> getAllPhysicalQuantity();
+    Collection<String> getAllMeasurements();
 
     Collection<UnitDefinition> getAllUnitDefinition();
 

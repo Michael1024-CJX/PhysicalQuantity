@@ -6,16 +6,16 @@ import java.util.Objects;
  * @author chenjx
  */
 public class UnitDefinition {
-    private String physicalQuantity;
+    private String measurement;
     private String symbol;
     private String alias;
 
-    public String getPhysicalQuantity() {
-        return physicalQuantity;
+    public String getMeasurement() {
+        return measurement;
     }
 
-    public void setPhysicalQuantity(String physicalQuantity) {
-        this.physicalQuantity = physicalQuantity;
+    public void setMeasurement(String measurement) {
+        this.measurement = measurement;
     }
 
     public String getSymbol() {
@@ -39,20 +39,20 @@ public class UnitDefinition {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         UnitDefinition that = (UnitDefinition) o;
-        return Objects.equals(physicalQuantity, that.physicalQuantity) &&
+        return Objects.equals(measurement, that.measurement) &&
                 Objects.equals(symbol, that.symbol) &&
                 Objects.equals(alias, that.alias);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(physicalQuantity, symbol, alias);
+        return Objects.hash(measurement, symbol, alias);
     }
 
     @Override
     public String toString() {
         return "UnitDefinition{" +
-                "physicalQuantity='" + physicalQuantity + '\'' +
+                "measurement='" + measurement + '\'' +
                 ", symbol='" + symbol + '\'' +
                 ", alias='" + alias + '\'' +
                 '}';

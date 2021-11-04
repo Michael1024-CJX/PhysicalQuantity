@@ -51,7 +51,7 @@ public class YAMLUnitRegister implements UnitRegister {
     }
 
     @Override
-    public Collection<String> getAllPhysicalQuantity() {
+    public Collection<String> getAllMeasurements() {
         return physicalQuantities;
     }
 

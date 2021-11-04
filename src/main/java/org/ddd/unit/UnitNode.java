@@ -7,7 +7,7 @@ package org.ddd.unit;
  * @author chenjx
  */
 public class UnitNode {
-    private MeasurementUnit measurementUnit;
+    private Unit unit;
     /**
      * The ratio of the current unit to the unit of the next node
      */
@@ -35,12 +35,12 @@ public class UnitNode {
     private UnitNode prev;
 
 
-    public UnitNode(MeasurementUnit measurementUnit) {
-        this.measurementUnit = measurementUnit;
+    public UnitNode(Unit unit) {
+        this.unit = unit;
     }
 
-    public MeasurementUnit unit() {
-        return measurementUnit;
+    public Unit unit() {
+        return unit;
     }
 
     public Ratio ratioToNext() {

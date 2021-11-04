@@ -1,30 +1,28 @@
 package org.ddd.unit;
 
-import java.util.Objects;
-
 /**
  * 复合单位用于组合两个单位的乘积，单位需要考虑幂。
  * 当 Quantity 参与的计算时，需要考虑 Quantity 的单位。
- * 复合单位不知道自己属于什么物理量。
+ * 复合单位不知道自己的量度，单位转换需要考虑依赖
  *
  * @author chenjx
  * @see AtomicUnit
  * @see UnitWithPower
- * @see org.ddd.quantity.PhysicalQuantity
+ * @see Measurement
  */
-public class CompoundUnit implements MeasurementUnit {
+public class CompoundUnit implements Unit {
     private String alias;
     private String symbol;
-    private UnitWithPower firstUnit;
-    private UnitWithPower secondUnit;
+    private Unit firstUnit;
+    private Unit secondUnit;
 
-    public CompoundUnit(UnitWithPower firstUnit, UnitWithPower secondUnit) {
+    public CompoundUnit(Unit firstUnit, Unit secondUnit) {
         this.firstUnit = firstUnit;
         this.secondUnit = secondUnit;
         this.alias = firstUnit.alias() + secondUnit.alias();
         if (firstUnit.symbol().equals(secondUnit.symbol())) {
             this.symbol = firstUnit.symbol() + "^2";
-        }else {
+        } else {
             this.symbol = firstUnit.symbol() + "·" + secondUnit.symbol();
         }
     }
@@ -34,7 +32,7 @@ public class CompoundUnit implements MeasurementUnit {
     public String alias() {
         return alias;
     }
-
+    // TODO 复合单位的符号需要完善
     @Override
     public String symbol() {
         return symbol;
@@ -50,6 +48,11 @@ public class CompoundUnit implements MeasurementUnit {
         return null;
     }
 
+    @Override
+    public void setMeasurement(Measurement measurement) {
+
+    }
+
     /**
      * 复合单位不知道其物理量，
      * 所以当与原子单位比较时，通过原子单位来比较
@@ -59,18 +62,14 @@ public class CompoundUnit implements MeasurementUnit {
      * @return 比较的结果
      */
     @Override
-    public boolean isSameTypeFor(MeasurementUnit target) {
-        if (target instanceof AtomicUnit) {
-            return target.isSameTypeFor(this);
-        }
-
+    public boolean isSameTypeFor(Unit target) {
         if (target instanceof CompoundUnit) {
             CompoundUnit targetCompoundUnit = (CompoundUnit) target;
             return this.firstUnit.isSameTypeFor(targetCompoundUnit.firstUnit)
                     && secondUnit.isSameTypeFor(targetCompoundUnit.secondUnit);
+        } else {
+            return target.isSameTypeFor(this);
         }
-
-        return false;
     }
 
     /**
@@ -82,14 +81,7 @@ public class CompoundUnit implements MeasurementUnit {
      * @return 与目标单位的转换率
      */
     @Override
-    public ConversionRate convertTo(MeasurementUnit target) {
-        if (target instanceof AtomicUnit) {
-            ConversionRate conversionRate = target.convertTo(this);
-            if (conversionRate != null) {
-                return conversionRate.reverse();
-            }
-        }
-
+    public ConversionRate convertTo(Unit target) {
         if (target instanceof CompoundUnit) {
             CompoundUnit targetCompoundUnit = (CompoundUnit) target;
             ConversionRate firstConversionRate = this.firstUnit.convertTo(targetCompoundUnit.firstUnit);
@@ -97,13 +89,12 @@ public class CompoundUnit implements MeasurementUnit {
             // 两个子单位之间的转换率相乘的结果就是复合单位的转换率
             Ratio ratioOfOpportunity = firstConversionRate.getRatio().times(secondConversionRate.getRatio());
             return new ConversionRate(this, target, ratioOfOpportunity);
+        } else {
+            ConversionRate conversionRate = target.convertTo(this);
+            if (conversionRate != null) {
+                return conversionRate.reverse();
+            }
         }
-
-        return null;
-    }
-
-    @Override
-    public ConversionRate convertTo(String targetSymbol) {
         return null;
     }
 

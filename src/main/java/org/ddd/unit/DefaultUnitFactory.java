@@ -8,33 +8,30 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author chenjx
  */
 public class DefaultUnitFactory implements UnitFactory {
-    private final Map<String, Measurement> physicalQuantities = new ConcurrentHashMap<>();
-    private final Map<String, MeasurementUnitContainer> physicalQuantityContainers = new ConcurrentHashMap<>();
-    private final Map<String, MeasurementUnit> unitMap = new ConcurrentHashMap<>();
+    private final Map<String, Measurement> measurements = new ConcurrentHashMap<>();
+    private final Map<String, Unit> unitMap = new ConcurrentHashMap<>();
+
+    private CompoundUnitParser compoundUnitParser = new CompoundUnitParser(this);
 
     public DefaultUnitFactory(UnitRegister register) {
-        if (register== null) {
+        if (register == null) {
             throw new IllegalArgumentException("register is null");
         }
-
-        init(register);
+        refresh(register);
     }
 
-    private void init(UnitRegister register) {
+    public void refresh(UnitRegister register) {
         registerPhysicalQuantity(register);
         registerPhysicalUnit(register);
         registerConversionRate(register);
     }
 
     private void registerPhysicalQuantity(UnitRegister register) {
-        Collection<String> allPhysicalQuantity = register.getAllPhysicalQuantity();
+        Collection<String> allPhysicalQuantity = register.getAllMeasurements();
 
         allPhysicalQuantity.forEach(type -> {
-            Measurement measurement = new Measurement(type);
-            LinkedMapContainer container = new LinkedMapContainer(measurement);
-            measurement.setMeasurementUnitContainer(container);
-            physicalQuantities.putIfAbsent(type, measurement);
-            physicalQuantityContainers.putIfAbsent(type, container);
+            Measurement measurement = new Measurement(type, new LinkedMapContainer());
+            measurements.putIfAbsent(type, measurement);
         });
     }
 
@@ -42,10 +39,11 @@ public class DefaultUnitFactory implements UnitFactory {
         Collection<UnitDefinition> allUnitDefinition = register.getAllUnitDefinition();
 
         allUnitDefinition.forEach(unitDefinition -> {
-            MeasurementUnitContainer container = physicalQuantityContainers.get(unitDefinition.getPhysicalQuantity());
-            if (container != null) {
-                MeasurementUnit measurementUnit = container.registerUnit(unitDefinition.getSymbol(), unitDefinition.getAlias());
-                unitMap.put(unitDefinition.getSymbol(), measurementUnit);
+            Measurement measurement = measurements.get(unitDefinition.getMeasurement());
+            if (measurement != null) {
+                Unit unit = measurement.registerUnit(
+                        unitDefinition.getSymbol(), unitDefinition.getAlias());
+                unitMap.put(unitDefinition.getSymbol(), unit);
             }
         });
     }
@@ -54,34 +52,35 @@ public class DefaultUnitFactory implements UnitFactory {
         Collection<ConversionRateDefinition> rates = register.getAllConversionRateDefinition();
 
         rates.forEach(conversionRate -> {
-            MeasurementUnitContainer container = physicalQuantityContainers.get(conversionRate.getPhysicalQuantity());
-
-            if (container != null) {
-                container.registerConversionRate(
-                        conversionRate.getNumeratorUnit(),
+            Measurement measurement = measurements.get(conversionRate.getMeasurement());
+            if (measurement != null) {
+                measurement.registerConversionRate(conversionRate.getNumeratorUnit(),
                         conversionRate.getDenominatorUnit(),
-                        conversionRate.getRatio()
-                );
+                        conversionRate.getRatio());
             }
-
         });
     }
 
     @Override
-    public MeasurementUnit getUnit(String unitSymbol) {
-        return unitMap.get(unitSymbol);
+    public Unit getUnit(String unitSymbol) {
+        Unit unit = unitMap.get(unitSymbol);
+        if (unit != null) {
+            return unit;
+        }
+        // TODO 处理复合单位
+
+        return compoundUnitParser.parser(unitSymbol);
     }
 
     @Override
     public Measurement getPhysicalQuantity(String type) {
-        return physicalQuantities.get(type);
+        return measurements.get(type);
     }
 
     @Override
     public String toString() {
         return "DefaultUnitFactory{" +
-                "physicalQuantities=" + physicalQuantities +
-                ",\r\n physicalQuantityContainers=" + physicalQuantityContainers +
+                "measurements=" + measurements +
                 ",\r\n unitMap=" + unitMap +
                 '}';
     }

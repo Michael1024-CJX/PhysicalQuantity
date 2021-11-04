@@ -6,17 +6,17 @@ import java.util.Objects;
  * @author chenjx
  */
 public class ConversionRateDefinition {
-    private String physicalQuantity;
+    private String measurement;
     private String numeratorUnit;
     private String denominatorUnit;
     private Ratio ratio;
 
-    public String getPhysicalQuantity() {
-        return physicalQuantity;
+    public String getMeasurement() {
+        return measurement;
     }
 
-    public void setPhysicalQuantity(String physicalQuantity) {
-        this.physicalQuantity = physicalQuantity;
+    public void setMeasurement(String measurement) {
+        this.measurement = measurement;
     }
 
     public String getNumeratorUnit() {
@@ -48,7 +48,7 @@ public class ConversionRateDefinition {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ConversionRateDefinition that = (ConversionRateDefinition) o;
-        return Objects.equals(physicalQuantity, that.physicalQuantity) &&
+        return Objects.equals(measurement, that.measurement) &&
                 Objects.equals(numeratorUnit, that.numeratorUnit) &&
                 Objects.equals(denominatorUnit, that.denominatorUnit) &&
                 Objects.equals(ratio, that.ratio);
@@ -56,13 +56,13 @@ public class ConversionRateDefinition {
 
     @Override
     public int hashCode() {
-        return Objects.hash(physicalQuantity, numeratorUnit, denominatorUnit, ratio);
+        return Objects.hash(measurement, numeratorUnit, denominatorUnit, ratio);
     }
 
     @Override
     public String toString() {
         return "ConversionRateDefinition{" +
-                "physicalQuantity='" + physicalQuantity + '\'' +
+                "physicalQuantity='" + measurement + '\'' +
                 ", numeratorUnit='" + numeratorUnit + '\'' +
                 ", denominatorUnit='" + denominatorUnit + '\'' +
                 ", ratio=" + ratio +

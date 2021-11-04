@@ -4,7 +4,9 @@ package org.ddd.unit;
  * @author chenjx
  */
 public interface UnitFactory {
-    MeasurementUnit getUnit(String unitSymbol);
+    void refresh(UnitRegister register);
+
+    Unit getUnit(String unitSymbol);
 
     Measurement getPhysicalQuantity(String type);
 }

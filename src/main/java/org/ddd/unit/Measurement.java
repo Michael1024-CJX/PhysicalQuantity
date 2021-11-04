@@ -1,15 +1,16 @@
 package org.ddd.unit;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Objects;
 
 /**
  * 量度，如长度，质量，速度等。
+ * 量度是单位的信息专家，拥有单位的知识。
+ * 只有同量度的单位之间能够转换。
  *
  * @author chenjx
  */
-public class Measurement {
+public abstract class Measurement {
     /**
      * 量度的类型
      */
@@ -17,43 +18,41 @@ public class Measurement {
     /**
      * 属于该物理量的单位容器
      */
-    private MeasurementUnitContainer measurementUnitContainer;
+    private UnitContainer unitContainer;
 
-    public Measurement(String type) {
+    public Measurement(String type, UnitContainer unitContainer) {
         this.type = type;
+        this.unitContainer = unitContainer;
     }
 
-    public void setMeasurementUnitContainer(MeasurementUnitContainer measurementUnitContainer) {
-        this.measurementUnitContainer = measurementUnitContainer;
+    public Unit registerUnit(String symbol, String alias) {
+        AtomicUnit atomicUnit = new AtomicUnit(symbol, alias);
+        atomicUnit.setMeasurement(this);
+        unitContainer.registerUnit(atomicUnit);
+        return atomicUnit;
     }
 
-    public MeasurementUnit getUnit(String symbol) {
-        if (measurementUnitContainer == null) {
-            return null;
-        }
-        return measurementUnitContainer.getUnitBySymbol(symbol);
+    public void registerConversionRate(String numeratorUnit, String denominatorUnit, Ratio ratio) {
+
+        unitContainer.registerConversionRate(numeratorUnit, denominatorUnit, ratio);
     }
 
-    public boolean containsUnit(MeasurementUnit measurementUnit) {
-        if (measurementUnitContainer == null) {
-            return false;
-        }
-        return measurementUnitContainer.contains(measurementUnit);
+    public Unit getUnit(String symbol) {
+
+        return unitContainer.getUnitBySymbol(symbol);
     }
 
-    public ConversionRate getConversionRate(MeasurementUnit from, MeasurementUnit to) {
-        if (measurementUnitContainer == null) {
-            return null;
-        }
-        Ratio ratio = measurementUnitContainer.calculateRatio(from, to);
+    public boolean containsUnit(Unit unit) {
+        return unitContainer.contains(unit);
+    }
+
+    public ConversionRate getConversionRate(Unit from, Unit to) {
+        Ratio ratio = unitContainer.calculateRatio(from, to);
         return new ConversionRate(from, to, ratio);
     }
 
     public Collection<String> allUnitSymbol() {
-        if (measurementUnitContainer == null) {
-            return Collections.emptyList();
-        }
-        return measurementUnitContainer.allUnitSymbol();
+        return unitContainer.allUnitSymbol();
     }
 
     @Override

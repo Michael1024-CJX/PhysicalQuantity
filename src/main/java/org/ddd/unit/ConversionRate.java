@@ -1,7 +1,5 @@
 package org.ddd.unit;
 
-import org.ddd.quantity.PhysicalQuantity;
-
 import java.math.BigDecimal;
 
 /**
@@ -10,21 +8,21 @@ import java.math.BigDecimal;
  * @author chenjx
  */
 public class ConversionRate {
-    private MeasurementUnit numeratorUnit;
-    private MeasurementUnit denominatorUnit;
+    private Unit numeratorUnit;
+    private Unit denominatorUnit;
     private Ratio ratio;
 
-    public ConversionRate(MeasurementUnit numeratorUnit, MeasurementUnit denominatorUnit, Ratio ratio) {
+    public ConversionRate(Unit numeratorUnit, Unit denominatorUnit, Ratio ratio) {
         this.numeratorUnit = numeratorUnit;
         this.denominatorUnit = denominatorUnit;
         this.ratio = ratio;
     }
 
-    public MeasurementUnit numeratorUnit() {
+    public Unit numeratorUnit() {
         return numeratorUnit;
     }
 
-    public MeasurementUnit denominatorUnit() {
+    public Unit denominatorUnit() {
         return denominatorUnit;
     }
 

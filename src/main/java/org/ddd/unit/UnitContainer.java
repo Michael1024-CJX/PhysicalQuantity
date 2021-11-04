@@ -9,14 +9,14 @@ import java.util.Collection;
  *
  * @author chenjx
  */
-public interface MeasurementUnitContainer {
+public interface UnitContainer {
     /**
      * 判断该容器内是否已保存该物理单位
      *
      * @param unit 待判断的物理单位
      * @return 是否已存在
      */
-    boolean contains(MeasurementUnit unit);
+    boolean contains(Unit unit);
 
     /**
      * 判断该容器内是否已保存该物理单位
@@ -32,7 +32,7 @@ public interface MeasurementUnitContainer {
      * @param symbol 物理单位的符号
      * @return 物理单位
      */
-    MeasurementUnit getUnitBySymbol(String symbol);
+    Unit getUnitBySymbol(String symbol);
 
     /**
      * 计算两个单位之间的转换率，
@@ -42,16 +42,14 @@ public interface MeasurementUnitContainer {
      * @param denominatorUnit 分母单位
      * @return 比值
      */
-    Ratio calculateRatio(MeasurementUnit numeratorUnit, MeasurementUnit denominatorUnit);
+    Ratio calculateRatio(Unit numeratorUnit, Unit denominatorUnit);
 
     /**
      * 注册一个新单位，如果符号已存在，则不会替换
      *
-     * @param symbol 单位符号，唯一的
-     * @param alias  单位名称
-     * @return 注册成功的单位
+     * @param unit 注册的单位
      */
-    MeasurementUnit registerUnit(String symbol, String alias);
+    void registerUnit(Unit unit);
 
     /**
      * 注册两个单位之间的转换率

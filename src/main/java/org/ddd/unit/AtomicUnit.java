@@ -4,11 +4,11 @@ import java.util.Objects;
 
 /**
  * 原子单位，如 米, 厘米, 千克, 克等。
- * 同物理量的单位之间可以互相转换。
+ * 原子单位知道自己的量度{@link Measurement},能够进行单位转换。
  *
  * @author chenjx
  */
-public class AtomicUnit implements MeasurementUnit {
+public class AtomicUnit implements Unit {
     /**
      * 单位符号
      */
@@ -18,14 +18,13 @@ public class AtomicUnit implements MeasurementUnit {
      */
     private String alias;
     /**
-     * 单位的物理量
+     * 单位的量度
      */
     private Measurement type;
 
-    public AtomicUnit(String unitSymbol, String alias, Measurement type) {
+    public AtomicUnit(String unitSymbol, String alias) {
         this.symbol = unitSymbol;
         this.alias = alias;
-        this.type = type;
     }
 
     @Override
@@ -44,16 +43,21 @@ public class AtomicUnit implements MeasurementUnit {
     }
 
     @Override
-    public boolean isSameTypeFor(MeasurementUnit measurementUnit) {
-        if (measurementUnit.type() != null) {
-            return Objects.equals(type, measurementUnit.type());
-        }
-
-        return type.containsUnit(measurementUnit);
+    public void setMeasurement(Measurement measurement) {
+        this.type = measurement;
     }
 
     @Override
-    public ConversionRate convertTo(MeasurementUnit target) {
+    public boolean isSameTypeFor(Unit unit) {
+        if (unit.type() != null) {
+            return Objects.equals(type, unit.type());
+        }
+
+        return type.containsUnit(unit);
+    }
+
+    @Override
+    public ConversionRate convertTo(Unit target) {
         Objects.requireNonNull(target, "目标单位为空");
 
         if (!isSameTypeFor(target)) {
@@ -61,15 +65,6 @@ public class AtomicUnit implements MeasurementUnit {
         }
 
         return type.getConversionRate(this, target);
-    }
-
-    @Override
-    public ConversionRate convertTo(String targetSymbol) {
-        MeasurementUnit unit = type.getUnit(targetSymbol);
-        if (unit != null) {
-            return this.convertTo(unit);
-        }
-        return null;
     }
 
     @Override

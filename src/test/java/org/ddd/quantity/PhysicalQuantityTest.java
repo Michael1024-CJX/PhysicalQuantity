@@ -1,6 +1,8 @@
 package org.ddd.quantity;
 
 import org.ddd.unit.DefaultUnitFactory;
+import org.ddd.unit.PhysicalQuantity;
+import org.ddd.unit.QuantityFactory;
 import org.ddd.unit.UnitFactory;
 import org.ddd.unit.impl.YAMLUnitRegister;
 import org.junit.Assert;
@@ -8,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.math.BigDecimal;
 
 /**
  * @author chenjx
@@ -30,17 +33,17 @@ public class PhysicalQuantityTest {
     }
 
     @Test
-    public void testConvertBySymbol() {
+    public void testConvertToAtomicUnit() {
         PhysicalQuantity height = quantityFactory.of(180, "cm");
-        PhysicalQuantity heightByM = height.convertTo("m");
+        PhysicalQuantity heightByM = height.convertTo(unitFactory.getUnit("m"));
         Assert.assertEquals("1.80m", String.valueOf(heightByM));
     }
 
     @Test
-    public void testConvertByUnit() {
-        PhysicalQuantity height = quantityFactory.of(180, "cm");
-        PhysicalQuantity heightByM = height.convertTo(unitFactory.getUnit("m"));
-        Assert.assertEquals("1.80m", String.valueOf(heightByM));
+    public void testConvertToCompoundUnit() {
+        PhysicalQuantity ms = quantityFactory.of(10, "m/s");
+        PhysicalQuantity kmh = ms.convertTo(unitFactory.getUnit("km/h"));
+        Assert.assertEquals(0, new BigDecimal(36).compareTo(new BigDecimal(kmh.getAmount().toString())));
     }
 
     @Test

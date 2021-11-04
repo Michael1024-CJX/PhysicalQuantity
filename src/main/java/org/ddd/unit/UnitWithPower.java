@@ -1,31 +1,36 @@
 package org.ddd.unit;
 
-import java.util.Objects;
-
 /**
  * 带有幂数的单位
  *
  * @author chenjx
  * @see AtomicUnit
  */
-public class UnitWithPower implements MeasurementUnit {
-    private MeasurementUnit originUnit;
+public class UnitWithPower implements Unit {
+    private Unit originUnit;
     private int power;
+    private String symbol;
 
-    private UnitWithPower(MeasurementUnit originUnit, int power) {
+    private UnitWithPower(Unit originUnit, int power) {
+        if (originUnit instanceof UnitWithPower) {
+            power *= ((UnitWithPower) originUnit).power;
+            originUnit = ((UnitWithPower) originUnit).originUnit;
+        }
         this.originUnit = originUnit;
         this.power = power;
+
+        this.symbol = power == 1 ? this.originUnit.symbol() : this.originUnit.symbol() + "^" + power;
     }
 
-    public static UnitWithPower ofPositiveOne(MeasurementUnit originUnit) {
-        return new UnitWithPower(originUnit, 1);
+    public static UnitWithPower ofPositiveOne(Unit originUnit) {
+        return UnitWithPower.of(originUnit, 1);
     }
 
-    public static UnitWithPower ofNegativeOne(MeasurementUnit originUnit) {
-        return new UnitWithPower(originUnit, -1);
+    public static UnitWithPower ofNegativeOne(Unit originUnit) {
+        return UnitWithPower.of(originUnit, -1);
     }
 
-    public static UnitWithPower of(MeasurementUnit originUnit, int power) {
+    public static UnitWithPower of(Unit originUnit, int power) {
         return new UnitWithPower(originUnit, power);
     }
 
@@ -36,10 +41,7 @@ public class UnitWithPower implements MeasurementUnit {
 
     @Override
     public String symbol() {
-        if (power != 1) {
-            return originUnit.symbol() + "^" + power;
-        }
-        return originUnit.symbol();
+        return symbol;
     }
 
     @Override
@@ -48,12 +50,17 @@ public class UnitWithPower implements MeasurementUnit {
     }
 
     @Override
-    public boolean isSameTypeFor(MeasurementUnit targetUnit) {
+    public void setMeasurement(Measurement measurement) {
+
+    }
+
+    @Override
+    public boolean isSameTypeFor(Unit targetUnit) {
         return this.originUnit.isSameTypeFor(targetUnit);
     }
 
     @Override
-    public ConversionRate convertTo(MeasurementUnit target) {
+    public ConversionRate convertTo(Unit target) {
         ConversionRate conversionRate = originUnit.convertTo(target);
 
         Ratio ratio = conversionRate.getRatio();
@@ -62,21 +69,16 @@ public class UnitWithPower implements MeasurementUnit {
         return new ConversionRate(this, new UnitWithPower(target, power), powRatio);
     }
 
-    @Override
-    public ConversionRate convertTo(String targetSymbol) {
-        ConversionRate conversionRate = originUnit.convertTo(targetSymbol);
-
-        Ratio ratio = conversionRate.getRatio();
-        Ratio powRatio = ratio.pow(power);
-
-        return new ConversionRate(this, new UnitWithPower(conversionRate.denominatorUnit(), power), powRatio);
-    }
-
-    public MeasurementUnit getOriginUnit() {
+    public Unit getOriginUnit() {
         return originUnit;
     }
 
     public int getPower() {
         return power;
+    }
+
+    @Override
+    public String toString() {
+        return originUnit.symbol();
     }
 }

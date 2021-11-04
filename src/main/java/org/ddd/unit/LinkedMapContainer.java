@@ -13,21 +13,17 @@ import java.util.Map;
  * @author chenjx
  * @see UnitNode 链表的节点
  */
-public class LinkedMapContainer implements MeasurementUnitContainer {
+public class LinkedMapContainer implements UnitContainer {
     /**
      * key:unit symbol  value:UnitNode
      */
     private Map<String, UnitNode> unitMap = new HashMap<>();
-    private Measurement measurement;
 
-
-    public LinkedMapContainer(Measurement measurement) {
-        this.measurement = measurement;
-        this.measurement.setMeasurementUnitContainer(this);
+    public LinkedMapContainer() {
     }
 
     @Override
-    public boolean contains(MeasurementUnit unit) {
+    public boolean contains(Unit unit) {
         return unitMap.containsKey(unit.symbol());
     }
 
@@ -37,7 +33,7 @@ public class LinkedMapContainer implements MeasurementUnitContainer {
     }
 
     @Override
-    public MeasurementUnit getUnitBySymbol(String symbol) {
+    public Unit getUnitBySymbol(String symbol) {
         if (!unitMap.containsKey(symbol)) {
             return null;
         }
@@ -56,7 +52,7 @@ public class LinkedMapContainer implements MeasurementUnitContainer {
      * @param denominatorUnit 分母单位
      * @return 转换率
      */
-    public Ratio calculateRatio(MeasurementUnit numeratorUnit, MeasurementUnit denominatorUnit) {
+    public Ratio calculateRatio(Unit numeratorUnit, Unit denominatorUnit) {
         if (!contains(numeratorUnit) || !contains(denominatorUnit)) {
             return null;
         }
@@ -67,10 +63,8 @@ public class LinkedMapContainer implements MeasurementUnitContainer {
     }
 
     @Override
-    public MeasurementUnit registerUnit(String symbol, String alias) {
-        AtomicUnit atomicUnit = new AtomicUnit(symbol, alias, this.measurement);
-        unitMap.putIfAbsent(symbol, new UnitNode(atomicUnit));
-        return getUnitBySymbol(symbol);
+    public void registerUnit(Unit unit) {
+        unitMap.putIfAbsent(unit.symbol(), new UnitNode(unit));
     }
 
     /**

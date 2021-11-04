@@ -13,19 +13,18 @@ import java.math.BigDecimal;
  * @author chenjx
  */
 public class YAMLMeasurementUnitContextTest {
-    private UnitRegister unitRegister;
     private UnitFactory factory;
 
     @Before
     public void before() {
-        unitRegister = new YAMLUnitRegister(new File("src/test/resources/unit/"));
+        UnitRegister unitRegister = new YAMLUnitRegister(new File("src/test/resources/unit/"));
         factory = new DefaultUnitFactory(unitRegister);
     }
 
     @Test
     public void testMConvertToRuler() throws IOException {
-        MeasurementUnit m = factory.getUnit("m");
-        MeasurementUnit ruler = factory.getUnit("尺");
+        Unit m = factory.getUnit("m");
+        Unit ruler = factory.getUnit("尺");
         ConversionRate ratioOfMToRuler = m.convertTo(ruler);
 
         BigDecimal ratioValue = ratioOfMToRuler.getRatio().decimalValue(0, BigDecimal.ROUND_HALF_UP);
@@ -34,8 +33,8 @@ public class YAMLMeasurementUnitContextTest {
 
     @Test
     public void testSConvertToH() {
-        MeasurementUnit s = factory.getUnit("s");
-        MeasurementUnit h = factory.getUnit("h");
+        Unit s = factory.getUnit("s");
+        Unit h = factory.getUnit("h");
 
         ConversionRate ratioOfSToH = s.convertTo(h);
         BigDecimal ratioValue = ratioOfSToH.getRatio().decimalValue(5, BigDecimal.ROUND_HALF_UP);
@@ -44,7 +43,7 @@ public class YAMLMeasurementUnitContextTest {
 
     @Test
     public void testHConvertToH() {
-        MeasurementUnit h = factory.getUnit("h");
+        Unit h = factory.getUnit("h");
         ConversionRate ratioOfHToH = h.convertTo(h);
         BigDecimal ratioValue = ratioOfHToH.getRatio().decimalValue(0, BigDecimal.ROUND_HALF_UP);
         Assert.assertEquals("时与时的比例不符合预期", 0, BigDecimal.ONE.compareTo(ratioValue));
@@ -52,8 +51,8 @@ public class YAMLMeasurementUnitContextTest {
 
     @Test
     public void testHConvertToM() {
-        MeasurementUnit h = factory.getUnit("h");
-        MeasurementUnit m = factory.getUnit("m");
+        Unit h = factory.getUnit("h");
+        Unit m = factory.getUnit("m");
 
         ConversionRate ratioOfHToM = h.convertTo(m);
 
@@ -62,12 +61,12 @@ public class YAMLMeasurementUnitContextTest {
 
     @Test
     public void testIsSameType() {
-        MeasurementUnit m = factory.getUnit("m");
-        MeasurementUnit ruler = factory.getUnit("尺");
+        Unit m = factory.getUnit("m");
+        Unit ruler = factory.getUnit("尺");
         Assert.assertTrue(m.isSameTypeFor(ruler));
 
 
-        MeasurementUnit h = factory.getUnit("h");
+        Unit h = factory.getUnit("h");
         Assert.assertFalse(m.isSameTypeFor(h));
     }
 }
