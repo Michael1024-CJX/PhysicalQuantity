@@ -9,18 +9,18 @@ package org.ddd.unit;
  */
 public interface Unit {
     /**
-     * 单位的别名
-     *
-     * @return 单位的别名
-     */
-    String alias();
-
-    /**
-     * 单位的符号，具有唯一性
+     * 单位的符号，具有唯一性，即写作
      *
      * @return 单位的符号
      */
     UnitSymbol symbol();
+
+    /**
+     * 单位的别名,即读作
+     *
+     * @return 单位的别名
+     */
+    String alias();
 
     /**
      * 度量，如长度，质量，时间等

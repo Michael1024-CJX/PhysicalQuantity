@@ -1,7 +1,7 @@
 package org.ddd.unit;
 
 /**
- * 单位的符号
+ * 单位符号，用于写作
  *
  * @author chenjx
  */

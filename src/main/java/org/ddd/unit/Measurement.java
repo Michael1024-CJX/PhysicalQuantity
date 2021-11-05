@@ -10,7 +10,7 @@ import java.util.Objects;
  *
  * @author chenjx
  */
-public abstract class Measurement {
+public class Measurement {
     /**
      * 量度的类型
      */
