@@ -1,6 +1,5 @@
 package org.ddd.unit;
 
-import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -15,44 +14,9 @@ public class Measurement {
      * 量度的类型
      */
     private String type;
-    /**
-     * 属于该物理量的单位容器
-     */
-    private UnitContainer unitContainer;
 
-    public Measurement(String type, UnitContainer unitContainer) {
+    public Measurement(String type) {
         this.type = type;
-        this.unitContainer = unitContainer;
-    }
-
-    public Unit registerUnit(String symbol, String alias) {
-        AtomicUnit atomicUnit = new AtomicUnit(symbol, alias);
-        atomicUnit.setMeasurement(this);
-        unitContainer.registerUnit(atomicUnit);
-        return atomicUnit;
-    }
-
-    public void registerConversionRate(String numeratorUnit, String denominatorUnit, Ratio ratio) {
-
-        unitContainer.registerConversionRate(numeratorUnit, denominatorUnit, ratio);
-    }
-
-    public Unit getUnit(String symbol) {
-
-        return unitContainer.getUnitBySymbol(symbol);
-    }
-
-    public boolean containsUnit(Unit unit) {
-        return unitContainer.contains(unit);
-    }
-
-    public ConversionRate getConversionRate(Unit from, Unit to) {
-        Ratio ratio = unitContainer.calculateRatio(from, to);
-        return new ConversionRate(from, to, ratio);
-    }
-
-    public Collection<String> allUnitSymbol() {
-//        return unitContainer.allUnitSymbol();
     }
 
     @Override

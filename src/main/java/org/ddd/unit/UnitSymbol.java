@@ -24,22 +24,27 @@ public final class UnitSymbol {
     }
 
     /**
-     * 将复合单位拆分成原子单位
+     * 将复合单位拆分成原子单位，m/s拆分成 m 和 s^-1, m^2拆分成 m m.
      * @return
      */
     public UnitSymbol[] split() {
         return new UnitSymbol[0];
     }
 
-    /**
-     * 获取单位的幂
-     * @return
-     */
+    public UnitSymbol atomicSymbol() {
+        return null;
+    }
+
     public int power() {
         return 1;
     }
 
-    public UnitSymbol removePower() {
-        return null;
+    public String symbol() {
+        return symbol;
+    }
+
+    @Override
+    public String toString() {
+        return symbol();
     }
 }

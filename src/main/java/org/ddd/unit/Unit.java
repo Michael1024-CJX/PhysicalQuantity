@@ -1,39 +1,39 @@
 package org.ddd.unit;
 
 /**
- * 量度单位，根据量度的类型{@link Measurement}划分。
- * 与同量度的单位之间可以互相转换。
- * 单位具有唯一的符号。
- *
  * @author chenjx
  */
-public interface Unit {
+public class Unit {
     /**
      * 单位的符号，具有唯一性，即写作
-     *
-     * @return 单位的符号
      */
-    UnitSymbol symbol();
-
+    private UnitSymbol symbol;
     /**
-     * 单位的别名,即读作
-     *
-     * @return 单位的别名
+     * 单位制，如长度，质量，时间等
      */
-    String alias();
-
+    private UnitSystem system;
     /**
-     * 度量，如长度，质量，时间等
-     *
-     * @return 度量
+     * 单位别名，用于读作
      */
-    Measurement type();
+    private String alias;
 
-    /**
-     * 设置度量
-     * @param measurement 度量
-     */
-    void setMeasurement(Measurement measurement);
+    public Unit(UnitSymbol symbol, UnitSystem system, String alias) {
+        this.symbol = symbol;
+        this.system = system;
+        this.alias = alias;
+    }
+
+    public UnitSymbol symbol() {
+        return symbol;
+    }
+
+    public String alias() {
+        return alias;
+    }
+
+    public UnitSystem unitSystem() {
+        return system;
+    }
 
     /**
      * 判断是否与该物理单位是否同类型
@@ -41,7 +41,9 @@ public interface Unit {
      * @param target 待比较的物理单位
      * @return 是否是同类型的单位
      */
-    boolean isSameTypeFor(Unit target);
+    public boolean isSameSystemFor(Unit target) {
+        return unitSystem().equals(target.unitSystem());
+    }
 
     /**
      * 获取与目标单位的的比率，需要两个单位属于同物理量
@@ -49,9 +51,7 @@ public interface Unit {
      * @param target 目标单位
      * @return 自身与目标单位的比率
      */
-    ConversionRate convertTo(Unit target);
-
-    default boolean equals(Unit o) {
-        return this.symbol().equals(o.symbol());
+    public ConversionRate convertTo(Unit target) {
+        return system.getConversionRate(this.symbol(), target.symbol());
     }
 }

@@ -43,7 +43,7 @@ public interface UnitContainer {
      * @param denominatorUnit 分母单位
      * @return 比值
      */
-    Ratio calculateRatio(Unit numeratorUnit, Unit denominatorUnit);
+    Ratio calculateRatio(UnitSymbol numeratorUnit, UnitSymbol denominatorUnit);
 
     /**
      * 注册一个新单位，如果符号已存在，则不会替换
@@ -59,11 +59,5 @@ public interface UnitContainer {
      * @param denominatorUnit 分母单位
      * @param ratio 比率
      */
-    void registerConversionRate(String numeratorUnit, String denominatorUnit, Ratio ratio);
-
-    /**
-     * 返回一个测量的所有单位
-     * @return
-     */
-    List<Unit> allUnits();
+    void registerConversionRate(UnitSymbol numeratorUnit, UnitSymbol denominatorUnit, Ratio ratio);
 }

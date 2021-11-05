@@ -60,8 +60,8 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
         Number multiply = NumberUtil.multiply(this.amount, multiplicand.amount);
 
         CompoundUnit compoundUnit = new CompoundUnit(
-                UnitWithPower.ofPositiveOne(this.unit),
-                UnitWithPower.ofPositiveOne(multiplicand.unit));
+                PowerUnit.ofPositiveOne(this.unit),
+                PowerUnit.ofPositiveOne(multiplicand.unit));
 
         return PhysicalQuantity.of(multiply, compoundUnit);
     }
@@ -77,8 +77,8 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
         }
         Number divide = NumberUtil.divide(this.amount, divisor.amount);
 
-        CompoundUnit compoundUnit = new CompoundUnit(UnitWithPower.ofPositiveOne(this.unit),
-                UnitWithPower.ofNegativeOne(divisor.getUnit()));
+        CompoundUnit compoundUnit = new CompoundUnit(PowerUnit.ofPositiveOne(this.unit),
+                PowerUnit.ofNegativeOne(divisor.getUnit()));
 
         return PhysicalQuantity.of(divide, compoundUnit);
     }

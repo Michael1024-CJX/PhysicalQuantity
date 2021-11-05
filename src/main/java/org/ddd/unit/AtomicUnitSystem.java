@@ -1,60 +1,47 @@
 package org.ddd.unit;
 
-import java.util.List;
-
 /**
  * 原子单位制
  *
  * @author chenjx
  */
-public class AtomicUnitSystem implements UnitSystem {
-    /**
-     * 度量
-     */
-    private Measurement measurement;
+public class AtomicUnitSystem extends AbstractUnitSystem implements UnitSystem {
     /**
      * 属于该物理量的单位容器
      */
     private UnitContainer unitContainer;
 
     public AtomicUnitSystem(Measurement measurement, UnitContainer unitContainer) {
-        this.measurement = measurement;
+        super(measurement);
         this.unitContainer = unitContainer;
     }
 
     public Unit registerUnit(String symbol, String alias) {
-        AtomicUnit atomicUnit = new AtomicUnit(symbol, alias);
-        atomicUnit.setMeasurement(measurement);
+        Unit atomicUnit = new Unit(new UnitSymbol(symbol), this, alias);
         unitContainer.registerUnit(atomicUnit);
         return atomicUnit;
     }
 
     public void registerConversionRate(String numeratorUnit, String denominatorUnit, Ratio ratio) {
-        unitContainer.registerConversionRate(numeratorUnit, denominatorUnit, ratio);
-    }
-
-
-    @Override
-    public Measurement type() {
-        return measurement;
+        unitContainer.registerConversionRate(new UnitSymbol(numeratorUnit), new UnitSymbol(denominatorUnit), ratio);
     }
 
     @Override
-    public List<Unit> allUnits() {
-        return unitContainer.allUnits();
+    public boolean containsUnit(UnitSymbol symbol) {
+        return unitContainer.contains(symbol);
     }
 
     @Override
-    public Unit getUnit(UnitSymbol symbol) {
+    Unit doGet(UnitSymbol symbol) {
         return unitContainer.getUnit(symbol);
     }
 
     @Override
-    public ConversionRate getConversionRate(Unit from, Unit to) {
+    ConversionRate doGetConversionRate(UnitSymbol from, UnitSymbol to) {
         Ratio ratio = unitContainer.calculateRatio(from, to);
         if (ratio == null) {
             return null;
         }
-        return new ConversionRate(from, to, ratio);
+        return new ConversionRate(getUnit(from), getUnit(to), ratio);
     }
 }

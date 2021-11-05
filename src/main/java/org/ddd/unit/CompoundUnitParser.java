@@ -47,9 +47,9 @@ public class CompoundUnitParser {
         switch (operator) {
             case "·":
             case "*":
-                return new CompoundUnit(prevUnit, UnitWithPower.ofPositiveOne(nextUnit));
+                return new CompoundUnit(prevUnit, PowerUnit.ofPositiveOne(nextUnit));
             case "/":
-                return new CompoundUnit(prevUnit, UnitWithPower.ofNegativeOne(nextUnit));
+                return new CompoundUnit(prevUnit, PowerUnit.ofNegativeOne(nextUnit));
             default:
                 throw new IllegalArgumentException("未知连接符");
         }
@@ -65,7 +65,7 @@ public class CompoundUnitParser {
             for (int i = 1; i < unitAndPower.length; i++) {
                 power *= Integer.parseInt(unitAndPower[i]);
             }
-            unit = UnitWithPower.of(unit, power);
+            unit = PowerUnit.of(unit, power);
         } else {
             unit = safeGetUnit(symbol);
         }

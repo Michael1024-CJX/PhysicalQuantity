@@ -1,10 +1,7 @@
 package org.ddd.unit;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 用于存储同类型的节点，同类型的节点之间可以存在转换率
@@ -35,7 +32,7 @@ public class LinkedMapContainer implements UnitContainer {
     }
 
     @Override
-    public Unit getUnitBySymbol(UnitSymbol symbol) {
+    public Unit getUnit(UnitSymbol symbol) {
         if (!unitMap.containsKey(symbol)) {
             return null;
         }
@@ -54,13 +51,13 @@ public class LinkedMapContainer implements UnitContainer {
      * @param denominatorUnit 分母单位
      * @return 转换率
      */
-    public Ratio calculateRatio(Unit numeratorUnit, Unit denominatorUnit) {
+    public Ratio calculateRatio(UnitSymbol numeratorUnit, UnitSymbol denominatorUnit) {
         if (!contains(numeratorUnit) || !contains(denominatorUnit)) {
             return null;
         }
 
-        UnitNode fromNode = unitMap.get(numeratorUnit.symbol());
-        UnitNode toNode = unitMap.get(denominatorUnit.symbol());
+        UnitNode fromNode = unitMap.get(numeratorUnit);
+        UnitNode toNode = unitMap.get(denominatorUnit);
         return fromNode.calculateRatioToTarget(toNode);
     }
 
@@ -79,7 +76,7 @@ public class LinkedMapContainer implements UnitContainer {
      * @param ratio           比率
      */
     @Override
-    public void registerConversionRate(String numeratorUnit, String denominatorUnit, Ratio ratio) {
+    public void registerConversionRate(UnitSymbol numeratorUnit, UnitSymbol denominatorUnit, Ratio ratio) {
         if (!contains(numeratorUnit) || !contains(denominatorUnit)) {
             throw new IllegalArgumentException("存在无效的单位");
         }
@@ -87,11 +84,6 @@ public class LinkedMapContainer implements UnitContainer {
         UnitNode fromNode = unitMap.get(numeratorUnit);
         UnitNode toNode = unitMap.get(denominatorUnit);
         fromNode.setRatioToTarget(toNode, ratio);
-    }
-
-    @Override
-    public List<Unit> allUnitSymbol() {
-        return unitMap.values().stream().map(UnitNode::unit).collect(Collectors.toList());
     }
 
     @Override
