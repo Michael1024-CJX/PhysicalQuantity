@@ -4,10 +4,10 @@ package org.ddd.unit;
  * @author chenjx
  */
 public class PowerUnitSystem extends AbstractUnitSystem implements UnitSystem {
-    private AtomicUnitSystem originUnitSystem;
+    private UnitSystem originUnitSystem;
     private int power;
 
-    public PowerUnitSystem(AtomicUnitSystem originUnitSystem, int power, Measurement measurement) {
+    public PowerUnitSystem(UnitSystem originUnitSystem, int power, Measurement measurement) {
         super(measurement);
         assert power != 0;
         this.originUnitSystem = originUnitSystem;

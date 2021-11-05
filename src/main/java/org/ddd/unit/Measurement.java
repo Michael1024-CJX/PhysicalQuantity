@@ -10,13 +10,18 @@ import java.util.Objects;
  * @author chenjx
  */
 public class Measurement {
+    static final Measurement UNKNOWN = new Measurement("UNKNOWN");
     /**
      * 量度的类型
      */
     private String type;
 
-    public Measurement(String type) {
+    private Measurement(String type) {
         this.type = type;
+    }
+
+    public static Measurement of(String type) {
+        return new Measurement(type);
     }
 
     @Override

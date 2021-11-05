@@ -5,8 +5,9 @@ import java.math.BigDecimal;
 /**
  * @author chenjx
  */
+@SuppressWarnings("WeakerAccess")
 public final class Ratio {
-    public static final Ratio ONE_RATIO = new Ratio(BigDecimal.ONE, BigDecimal.ONE);
+    static final Ratio ONE_RATIO = new Ratio(BigDecimal.ONE, BigDecimal.ONE);
     private BigDecimal numerator;
     private BigDecimal denominator;
 
@@ -26,8 +27,8 @@ public final class Ratio {
     /**
      * 乘一个数，分子乘
      *
-     * @param multiplier
-     * @return
+     * @param multiplier 乘数
+     * @return 结果
      */
     public Ratio times(BigDecimal multiplier) {
         return Ratio.of(numerator.multiply(multiplier), denominator);
@@ -36,8 +37,8 @@ public final class Ratio {
     /**
      * 乘一个比值数，分子乘分子，分母乘分母
      *
-     * @param multiplier
-     * @return
+     * @param multiplier 乘数
+     * @return 结果
      */
     public Ratio times(Ratio multiplier) {
         return Ratio.of(numerator.multiply(multiplier.numerator), denominator.multiply(multiplier.denominator));
@@ -47,7 +48,7 @@ public final class Ratio {
      * 幂
      *
      * @param power 幂
-     * @return
+     * @return 结果
      */
     public Ratio pow(int power) {
         if (power == 0) {
@@ -64,7 +65,7 @@ public final class Ratio {
     /**
      * 倒数
      *
-     * @return
+     * @return 结果
      */
     public Ratio reciprocal() {
         return Ratio.of(denominator, numerator);

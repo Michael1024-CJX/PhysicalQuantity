@@ -15,8 +15,8 @@ public class QuantityFactory {
     public PhysicalQuantity of(Number value, String symbol){
         Unit unit = unitFactory.getUnit(symbol);
         if (unit == null) {
-            throw new IllegalArgumentException("无效的单位符号");
+            throw new SymbolNotFoundException("无效的单位符号");
         }
-        return PhysicalQuantity.of(value, unit);
+        return PhysicalQuantity.of(value, unit, unitFactory);
     }
 }

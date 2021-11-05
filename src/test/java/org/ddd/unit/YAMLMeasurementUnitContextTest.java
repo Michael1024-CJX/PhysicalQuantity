@@ -63,10 +63,10 @@ public class YAMLMeasurementUnitContextTest {
     public void testIsSameType() {
         Unit m = factory.getUnit("m");
         Unit ruler = factory.getUnit("尺");
-        Assert.assertTrue(m.isSameTypeFor(ruler));
+        Assert.assertTrue(m.isSameSystemFor(ruler));
 
 
         Unit h = factory.getUnit("h");
-        Assert.assertFalse(m.isSameTypeFor(h));
+        Assert.assertFalse(m.isSameSystemFor(h));
     }
 }

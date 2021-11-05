@@ -6,7 +6,11 @@ package org.ddd.unit;
 public interface UnitFactory {
     void refresh(UnitRegister register);
 
-    Unit getUnit(String unitSymbol);
+    default Unit getUnit(String unitSymbol) {
+        return getUnit(UnitSymbol.of(unitSymbol));
+    }
 
-    Measurement getPhysicalQuantity(String type);
+    Unit getUnit(UnitSymbol unitSymbol);
+
+    Measurement getMeasurement(UnitSymbol unitSymbol);
 }

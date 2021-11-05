@@ -2,6 +2,8 @@ package org.ddd.unit;
 
 import org.ddd.util.NumberUtil;
 
+import java.math.BigDecimal;
+
 /**
  * 物理量，由数值和单位组成。同时，物理量具有一些行为：
  * 1. 转换。物理量应该能够进行单位转换，如 1m = 100cm, 1kg = 1000g。
@@ -24,11 +26,13 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
      */
     private Unit unit;
 
-    static PhysicalQuantity of(Number amount, Unit unit) {
-        return new PhysicalQuantity(amount, unit);
+    private UnitFactory unitFactory;
+
+    static PhysicalQuantity of(Number amount, Unit unit, UnitFactory unitFactory) {
+        return new PhysicalQuantity(amount, unit, unitFactory);
     }
 
-    private PhysicalQuantity(Number amount, Unit unit) {
+    private PhysicalQuantity(Number amount, Unit unit, UnitFactory unitFactory) {
         this.amount = amount;
         this.unit = unit;
     }
@@ -38,19 +42,22 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
         if (rate == null) {
             throw new IllegalArgumentException("无效的转换单位");
         }
-        return rate.apply(this);
+        Ratio ratio = rate.getRatio();
+        Ratio times = ratio.times(new BigDecimal(getAmount().toString()));
+
+        return PhysicalQuantity.of(times.decimalValue(2, BigDecimal.ROUND_HALF_UP), rate.denominatorUnit(), unitFactory);
     }
 
     public PhysicalQuantity add(PhysicalQuantity augend) {
         PhysicalQuantity sameUnitQuantity = augend.convertTo(this.unit);
         Number add = NumberUtil.add(this.amount, sameUnitQuantity.amount);
-        return PhysicalQuantity.of(add, unit);
+        return PhysicalQuantity.of(add, unit, unitFactory);
     }
 
     public PhysicalQuantity subtract(PhysicalQuantity subtrahend) {
         PhysicalQuantity sameUnitQuantity = subtrahend.convertTo(this.unit);
         Number subtract = NumberUtil.subtract(this.amount, sameUnitQuantity.amount);
-        return PhysicalQuantity.of(subtract, unit);
+        return PhysicalQuantity.of(subtract, unit, unitFactory);
     }
 
     public PhysicalQuantity multiply(PhysicalQuantity multiplicand) {
@@ -59,16 +66,14 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
         }
         Number multiply = NumberUtil.multiply(this.amount, multiplicand.amount);
 
-        CompoundUnit compoundUnit = new CompoundUnit(
-                PowerUnit.ofPositiveOne(this.unit),
-                PowerUnit.ofPositiveOne(multiplicand.unit));
+        UnitSymbol timesUnit = unit.symbol().times(multiplicand.unit.symbol());
 
-        return PhysicalQuantity.of(multiply, compoundUnit);
+        return PhysicalQuantity.of(multiply, unitFactory.getUnit(timesUnit), unitFactory);
     }
 
     public PhysicalQuantity multiply(Number multiplicand) {
         Number multiply = NumberUtil.multiply(this.amount, multiplicand);
-        return PhysicalQuantity.of(multiply, this.unit);
+        return PhysicalQuantity.of(multiply, this.unit, unitFactory);
     }
 
     public PhysicalQuantity divide(PhysicalQuantity divisor) {
@@ -77,15 +82,14 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
         }
         Number divide = NumberUtil.divide(this.amount, divisor.amount);
 
-        CompoundUnit compoundUnit = new CompoundUnit(PowerUnit.ofPositiveOne(this.unit),
-                PowerUnit.ofNegativeOne(divisor.getUnit()));
+        UnitSymbol divideUnit = unit.symbol().divide(divisor.unit.symbol());
 
-        return PhysicalQuantity.of(divide, compoundUnit);
+        return PhysicalQuantity.of(divide, unitFactory.getUnit(divideUnit), unitFactory);
     }
 
     public PhysicalQuantity divide(Number divisor) {
         Number divide = NumberUtil.divide(this.amount, divisor);
-        return PhysicalQuantity.of(divide, this.unit);
+        return PhysicalQuantity.of(divide, this.unit, unitFactory);
     }
 
     @Override
@@ -109,7 +113,7 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
     }
 
     private boolean isSameTypeFor(Unit unit) {
-        return this.unit.isSameTypeFor(unit);
+        return this.unit.isSameSystemFor(unit);
     }
 
     @Override

@@ -17,13 +17,13 @@ public class AtomicUnitSystem extends AbstractUnitSystem implements UnitSystem {
     }
 
     public Unit registerUnit(String symbol, String alias) {
-        Unit atomicUnit = new Unit(new UnitSymbol(symbol), this, alias);
+        Unit atomicUnit = new Unit(UnitSymbol.of(symbol), this, alias);
         unitContainer.registerUnit(atomicUnit);
         return atomicUnit;
     }
 
     public void registerConversionRate(String numeratorUnit, String denominatorUnit, Ratio ratio) {
-        unitContainer.registerConversionRate(new UnitSymbol(numeratorUnit), new UnitSymbol(denominatorUnit), ratio);
+        unitContainer.registerConversionRate(UnitSymbol.of(numeratorUnit), UnitSymbol.of(denominatorUnit), ratio);
     }
 
     @Override

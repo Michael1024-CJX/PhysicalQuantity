@@ -1,19 +1,21 @@
 package org.ddd.unit;
 
+import java.util.List;
+
 /**
  * @author chenjx
  */
 public class CompoundUnitSystem extends AbstractUnitSystem implements UnitSystem {
-    private UnitSystem[] systems;
+    private List<UnitSystem> systems;
 
-    public CompoundUnitSystem(UnitSystem[] systems, Measurement type) {
+    public CompoundUnitSystem(List<UnitSystem> systems, Measurement type) {
         super(type);
         this.systems = systems;
     }
 
     @Override
     public boolean containsUnit(UnitSymbol symbol) {
-        UnitSymbol[] atomicUnits = symbol.split();
+        List<UnitSymbol> atomicUnits = symbol.split();
         for (UnitSymbol atomicUnit : atomicUnits) {
             if (!contains(atomicUnit)) {
                 return false;
@@ -32,13 +34,16 @@ public class CompoundUnitSystem extends AbstractUnitSystem implements UnitSystem
 
     @Override
     ConversionRate doGetConversionRate(UnitSymbol from, UnitSymbol to) {
-        UnitSymbol[] fromUnits = from.split();
-        UnitSymbol[] toUnits = to.split();
-        Ratio ratio = Ratio.ONE_RATIO;
+        List<UnitSymbol> fromUnits = from.split();
+        List<UnitSymbol> toUnits = to.split();
+        if (fromUnits.size() != toUnits.size()) {
+            return null;
+        }
 
-        for (int i = 0; i < fromUnits.length; i++) {
-            UnitSymbol fromAtomicUnit = fromUnits[i];
-            UnitSymbol toAtomicUnit = toUnits[i];
+        Ratio ratio = Ratio.ONE_RATIO;
+        for (int i = 0; i < fromUnits.size(); i++) {
+            UnitSymbol fromAtomicUnit = fromUnits.get(i);
+            UnitSymbol toAtomicUnit = toUnits.get(i);
             UnitSystem unitSystem = getUnitSystem(fromAtomicUnit);
             ConversionRate conversionRate = unitSystem.getConversionRate(fromAtomicUnit, toAtomicUnit);
             if (conversionRate == null) {

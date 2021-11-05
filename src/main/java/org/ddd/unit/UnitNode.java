@@ -35,7 +35,7 @@ public class UnitNode {
     private UnitNode prev;
 
 
-    public UnitNode(Unit unit) {
+    UnitNode(Unit unit) {
         this.unit = unit;
     }
 
@@ -43,23 +43,23 @@ public class UnitNode {
         return unit;
     }
 
-    public Ratio ratioToNext() {
+    private Ratio ratioToNext() {
         return ratioToNext;
     }
 
-    public UnitNode next() {
+    private UnitNode next() {
         return next;
     }
 
-    public UnitNode prev() {
+    private UnitNode prev() {
         return prev;
     }
 
-    public boolean hasNext() {
+    private boolean hasNext() {
         return next != null;
     }
 
-    public boolean hasPrev() {
+    private boolean hasPrev() {
         return prev != null;
     }
 
@@ -68,7 +68,7 @@ public class UnitNode {
      * 两个单位都在同一条链上的时候，此时的分子是链表中较前的节点。
      * 若两个单位在不同的链上，则将两条链头尾相连，计算连接位置的转换率即可
      */
-    public void setRatioToTarget(UnitNode targetNode, Ratio ratioToTarget) {
+    void setRatioToTarget(UnitNode targetNode, Ratio ratioToTarget) {
         // 如果两个单位都是游离态，直接设置转换率
         if (!this.isManaged() && !targetNode.isManaged()) {
             setNext(targetNode, ratioToTarget);
@@ -145,15 +145,15 @@ public class UnitNode {
         return ratio;
     }
 
-    public int index() {
+    private int index() {
         return index;
     }
 
-    public boolean isManaged() {
+    private boolean isManaged() {
         return managed;
     }
 
-    public void beManaged() {
+    private void beManaged() {
         this.managed = true;
     }
 
