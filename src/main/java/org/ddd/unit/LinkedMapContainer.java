@@ -2,7 +2,9 @@ package org.ddd.unit;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 用于存储同类型的节点，同类型的节点之间可以存在转换率
@@ -17,7 +19,7 @@ public class LinkedMapContainer implements UnitContainer {
     /**
      * key:unit symbol  value:UnitNode
      */
-    private Map<String, UnitNode> unitMap = new HashMap<>();
+    private Map<UnitSymbol, UnitNode> unitMap = new HashMap<>();
 
     public LinkedMapContainer() {
     }
@@ -28,12 +30,12 @@ public class LinkedMapContainer implements UnitContainer {
     }
 
     @Override
-    public boolean contains(String unitSymbol) {
+    public boolean contains(UnitSymbol unitSymbol) {
         return unitMap.containsKey(unitSymbol);
     }
 
     @Override
-    public Unit getUnitBySymbol(String symbol) {
+    public Unit getUnitBySymbol(UnitSymbol symbol) {
         if (!unitMap.containsKey(symbol)) {
             return null;
         }
@@ -88,8 +90,8 @@ public class LinkedMapContainer implements UnitContainer {
     }
 
     @Override
-    public Collection<String> allUnitSymbol() {
-        return unitMap.keySet();
+    public List<Unit> allUnitSymbol() {
+        return unitMap.values().stream().map(UnitNode::unit).collect(Collectors.toList());
     }
 
     @Override

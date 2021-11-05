@@ -52,7 +52,7 @@ public abstract class Measurement {
     }
 
     public Collection<String> allUnitSymbol() {
-        return unitContainer.allUnitSymbol();
+//        return unitContainer.allUnitSymbol();
     }
 
     @Override
@@ -70,6 +70,10 @@ public abstract class Measurement {
 
     @Override
     public String toString() {
+        return type;
+    }
+
+    public String type() {
         return type;
     }
 }

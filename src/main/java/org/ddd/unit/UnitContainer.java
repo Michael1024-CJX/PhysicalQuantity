@@ -1,6 +1,7 @@
 package org.ddd.unit;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * 量度单位的容器
@@ -24,7 +25,7 @@ public interface UnitContainer {
      * @param unitSymbol 待判断的物理单位
      * @return 是否已存在
      */
-    boolean contains(String unitSymbol);
+    boolean contains(UnitSymbol unitSymbol);
 
     /**
      * 通过唯一的物理量单位的符号查询单位
@@ -32,7 +33,7 @@ public interface UnitContainer {
      * @param symbol 物理单位的符号
      * @return 物理单位
      */
-    Unit getUnitBySymbol(String symbol);
+    Unit getUnit(UnitSymbol symbol);
 
     /**
      * 计算两个单位之间的转换率，
@@ -64,5 +65,5 @@ public interface UnitContainer {
      * 返回一个测量的所有单位
      * @return
      */
-    Collection<String> allUnitSymbol();
+    List<Unit> allUnits();
 }

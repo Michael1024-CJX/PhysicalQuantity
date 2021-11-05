@@ -12,7 +12,7 @@ public class AtomicUnit implements Unit {
     /**
      * 单位符号
      */
-    private String symbol;
+    private UnitSymbol symbol;
     /**
      * 单位的别名
      */
@@ -23,7 +23,7 @@ public class AtomicUnit implements Unit {
     private Measurement type;
 
     public AtomicUnit(String unitSymbol, String alias) {
-        this.symbol = unitSymbol;
+        this.symbol = new UnitSymbol(unitSymbol);
         this.alias = alias;
     }
 
@@ -33,7 +33,7 @@ public class AtomicUnit implements Unit {
     }
 
     @Override
-    public String symbol() {
+    public UnitSymbol symbol() {
         return symbol;
     }
 
@@ -69,6 +69,6 @@ public class AtomicUnit implements Unit {
 
     @Override
     public String toString() {
-        return symbol();
+        return symbol().toString();
     }
 }

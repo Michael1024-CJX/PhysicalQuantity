@@ -20,7 +20,7 @@ public interface Unit {
      *
      * @return 单位的符号
      */
-    String symbol();
+    UnitSymbol symbol();
 
     /**
      * 度量，如长度，质量，时间等
