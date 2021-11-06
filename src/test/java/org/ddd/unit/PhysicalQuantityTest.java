@@ -32,14 +32,14 @@ public class PhysicalQuantityTest {
     @Test
     public void testConvertToAtomicUnit() {
         PhysicalQuantity height = quantityFactory.of(180, "cm");
-        PhysicalQuantity heightByM = height.convertTo(unitFactory.getUnit("m"));
+        PhysicalQuantity heightByM = height.convertTo("m");
         Assert.assertEquals("1.80m", String.valueOf(heightByM));
     }
 
     @Test
     public void testConvertToCompoundUnit() {
         PhysicalQuantity ms = quantityFactory.of(10, "m/s");
-        PhysicalQuantity kmh = ms.convertTo(unitFactory.getUnit("km/h"));
+        PhysicalQuantity kmh = ms.convertTo("km/h");
         Assert.assertEquals(0, new BigDecimal(36).compareTo(new BigDecimal(kmh.getAmount().toString())));
     }
 
@@ -98,5 +98,13 @@ public class PhysicalQuantityTest {
         PhysicalQuantity multiply = height.divide(2);
 
         Assert.assertEquals(0, multiply.compareTo(expected));
+    }
+
+    @Test
+    public void testCompareTo() {
+        PhysicalQuantity m = quantityFactory.of(1, "m");
+        PhysicalQuantity cm = quantityFactory.of(100, "cm");
+
+        Assert.assertEquals(0, m.compareTo(cm));
     }
 }

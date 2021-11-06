@@ -55,6 +55,15 @@ public class Unit {
         return system.getConversionRate(this.symbol(), target.symbol());
     }
 
+    /**
+     * 获取与目标单位的的比率，需要两个单位属于同物理量
+     *
+     * @param target 目标单位
+     * @return 自身与目标单位的比率
+     */
+    public ConversionRate convertTo(UnitSymbol target) {
+        return system.getConversionRate(this.symbol(), target);
+    }
     @Override
     public String toString() {
         return symbol.symbol();

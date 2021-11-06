@@ -38,10 +38,14 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
         this.unitFactory = unitFactory;
     }
 
-    public PhysicalQuantity convertTo(Unit targetUnit) {
-        ConversionRate rate = unit.convertTo(targetUnit);
+    public PhysicalQuantity convertTo(String symbol) {
+        return convertTo(UnitSymbol.of(symbol));
+    }
+
+    public PhysicalQuantity convertTo(UnitSymbol symbol) {
+        ConversionRate rate = unit.convertTo(symbol);
         if (rate == null) {
-            throw new IllegalArgumentException("无效的转换单位");
+            throw new SymbolNotFoundException("无效的转换单位");
         }
         Ratio ratio = rate.getRatio();
         Ratio times = ratio.times(new BigDecimal(getAmount().toString()));
@@ -50,20 +54,20 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
     }
 
     public PhysicalQuantity add(PhysicalQuantity augend) {
-        PhysicalQuantity sameUnitQuantity = augend.convertTo(this.unit);
+        PhysicalQuantity sameUnitQuantity = augend.convertTo(this.unit.symbol());
         Number add = NumberUtil.add(this.amount, sameUnitQuantity.amount);
         return PhysicalQuantity.of(add, unit, unitFactory);
     }
 
     public PhysicalQuantity subtract(PhysicalQuantity subtrahend) {
-        PhysicalQuantity sameUnitQuantity = subtrahend.convertTo(this.unit);
+        PhysicalQuantity sameUnitQuantity = subtrahend.convertTo(this.unit.symbol());
         Number subtract = NumberUtil.subtract(this.amount, sameUnitQuantity.amount);
         return PhysicalQuantity.of(subtract, unit, unitFactory);
     }
 
     public PhysicalQuantity multiply(PhysicalQuantity multiplicand) {
         if (isSameTypeFor(multiplicand.unit)) {
-            multiplicand = multiplicand.convertTo(this.unit);
+            multiplicand = multiplicand.convertTo(this.unit.symbol());
         }
         Number multiply = NumberUtil.multiply(this.amount, multiplicand.amount);
 
@@ -79,7 +83,7 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
 
     public PhysicalQuantity divide(PhysicalQuantity divisor) {
         if (isSameTypeFor(divisor.unit)) {
-            divisor = divisor.convertTo(this.unit);
+            divisor = divisor.convertTo(this.unit.symbol());
         }
         Number divide = NumberUtil.divide(this.amount, divisor.amount);
 
@@ -98,9 +102,9 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
         if (this.unit.equals(o.unit)) {
             return NumberUtil.compare(this.amount, o.amount);
         }
-        PhysicalQuantity sameUnit = o.convertTo(this.unit);
+        PhysicalQuantity sameUnit = o.convertTo(this.unit.symbol());
         if (sameUnit == null) {
-            throw new IllegalArgumentException("单位类型不同，不能比较大小");
+            throw new SymbolNotFoundException("单位类型不同，不能比较大小");
         }
         return NumberUtil.compare(this.amount, sameUnit.amount);
     }
