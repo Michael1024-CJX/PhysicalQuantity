@@ -1,5 +1,6 @@
 package org.ddd.unit;
 
+import org.ddd.unit.impl.DefaultUnitFactory;
 import org.ddd.unit.impl.YAMLUnitRegister;
 import org.junit.Assert;
 import org.junit.Before;

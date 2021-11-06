@@ -21,22 +21,30 @@ public class PowerUnitSystem extends AbstractUnitSystem implements UnitSystem {
 
     @Override
     Unit doGet(UnitSymbol symbol) {
-        if (symbol.power() != power) {
+        if (symbol.index() != power) {
             return null;
         }
-        Unit unit = originUnitSystem.getUnit(symbol.atomicSymbol());
+        Unit unit = originUnitSystem.getUnit(symbol.base());
         if (unit == null) {
             return null;
         }
-        return new Unit(symbol, this, "");
+        return new Unit(symbol, this, newAlias(unit));
+    }
+
+    private String newAlias(Unit unit) {
+        if (power > 0) {
+            return power == 1? unit.alias() : power + "次方" + unit.alias();
+        }else {
+            return "每" + power + "次方" + unit.alias();
+        }
     }
 
     @Override
     ConversionRate doGetConversionRate(UnitSymbol from, UnitSymbol to) {
-        if (from.power() != power || to.power() != power) {
+        if (from.index() != power || to.index() != power) {
             return null;
         }
-        ConversionRate atomicRate = originUnitSystem.getConversionRate(from.atomicSymbol(), to.atomicSymbol());
+        ConversionRate atomicRate = originUnitSystem.getConversionRate(from.base(), to.base());
         if (atomicRate == null) {
             return null;
         }

@@ -15,7 +15,7 @@ public class CompoundUnitSystem extends AbstractUnitSystem implements UnitSystem
 
     @Override
     public boolean containsUnit(UnitSymbol symbol) {
-        List<UnitSymbol> atomicUnits = symbol.split();
+        List<UnitSymbol> atomicUnits = symbol.splitIntoSingleSymbol();
         for (UnitSymbol atomicUnit : atomicUnits) {
             if (!contains(atomicUnit)) {
                 return false;
@@ -34,8 +34,8 @@ public class CompoundUnitSystem extends AbstractUnitSystem implements UnitSystem
 
     @Override
     ConversionRate doGetConversionRate(UnitSymbol from, UnitSymbol to) {
-        List<UnitSymbol> fromUnits = from.split();
-        List<UnitSymbol> toUnits = to.split();
+        List<UnitSymbol> fromUnits = from.splitIntoSingleSymbol();
+        List<UnitSymbol> toUnits = to.splitIntoSingleSymbol();
         if (fromUnits.size() != toUnits.size()) {
             return null;
         }

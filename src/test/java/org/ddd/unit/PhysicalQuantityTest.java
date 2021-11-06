@@ -1,9 +1,6 @@
-package org.ddd.quantity;
+package org.ddd.unit;
 
-import org.ddd.unit.DefaultUnitFactory;
-import org.ddd.unit.PhysicalQuantity;
-import org.ddd.unit.QuantityFactory;
-import org.ddd.unit.UnitFactory;
+import org.ddd.unit.impl.DefaultUnitFactory;
 import org.ddd.unit.impl.YAMLUnitRegister;
 import org.junit.Assert;
 import org.junit.Before;

@@ -1,4 +1,6 @@
-package org.ddd.unit;
+package org.ddd.unit.impl;
+
+import org.ddd.unit.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,8 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DefaultUnitFactory implements UnitFactory {
     private final Map<Measurement, UnitSystem> unitSystemMap = new ConcurrentHashMap<>();
     private final Map<UnitSymbol, Unit> unitMap = new ConcurrentHashMap<>();
-
-//    private CompoundUnitParser compoundUnitParser = new CompoundUnitParser(this);
 
     public DefaultUnitFactory(UnitRegister register) {
         if (register == null) {
@@ -30,32 +30,26 @@ public class DefaultUnitFactory implements UnitFactory {
 
     @Override
     public Unit getUnit(UnitSymbol unitSymbol) {
-        if (unitSymbol.isAtomic()) {
-            return unitMap.get(unitSymbol);
-        }
-        if (unitSymbol.hasPower()) {
+        if (unitSymbol.isSingleSymbol()) {
             PowerUnitSystem powerUnitSystem = getPowerUnitSystem(unitSymbol);
             return powerUnitSystem.getUnit(unitSymbol);
         }
 
-        List<UnitSymbol> split = unitSymbol.split();
+
+        List<UnitSymbol> singleSymbols = unitSymbol.splitIntoSingleSymbol();
         List<UnitSystem> systems = new ArrayList<>();
-        for (UnitSymbol symbol : split) {
-            if (symbol.isAtomic()) {
-                Unit unit = unitMap.get(unitSymbol);
-                systems.add(unit.unitSystem());
-            }else {
-                PowerUnitSystem powerUnitSystem = getPowerUnitSystem(symbol);
-                systems.add(powerUnitSystem);
-            }
+
+        for (UnitSymbol singleSymbol : singleSymbols) {
+            PowerUnitSystem powerUnitSystem = getPowerUnitSystem(singleSymbol);
+            systems.add(powerUnitSystem);
         }
         CompoundUnitSystem compoundUnitSystem = new CompoundUnitSystem(systems, getMeasurement(unitSymbol));
         return compoundUnitSystem.getUnit(unitSymbol);
     }
 
     private PowerUnitSystem getPowerUnitSystem(UnitSymbol symbol) {
-        Unit unit = unitMap.get(symbol.atomicSymbol());
-        return new PowerUnitSystem(unit.unitSystem(), symbol.power(), getMeasurement(symbol));
+        Unit unit = unitMap.get(symbol.base());
+        return new PowerUnitSystem(unit.unitSystem(), symbol.index(), getMeasurement(symbol));
     }
 
     @Override

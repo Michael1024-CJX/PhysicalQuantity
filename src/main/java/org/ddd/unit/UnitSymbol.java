@@ -1,8 +1,6 @@
 package org.ddd.unit;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,9 +10,13 @@ import java.util.regex.Pattern;
  * @author chenjx
  */
 public final class UnitSymbol {
-    private static final Pattern JOINER = Pattern.compile("([*/·])");
+    private static final String MULTIPLY_JOINER = "*·";
+    private static final String DIVIDE_JOINER = "/";
+    private static final String POWER_JOINER = "^";
+    private static final Pattern COMBINATION_JOINER = Pattern.compile("([" + MULTIPLY_JOINER + DIVIDE_JOINER + "])");
+//    private static final Pattern ALL_JOINER = Pattern.compile("([" + MULTIPLY_JOINER + DIVIDE_JOINER + POWER_JOINER + "])");
 
-    private String symbol;
+    private final String symbol;
 
     private UnitSymbol(String symbol) {
         if (symbol == null || symbol.length() < 1) {
@@ -28,19 +30,12 @@ public final class UnitSymbol {
     }
 
     /**
-     * 该单位符号是否是原子单位
-     *
+     * 判断符号是否只有一种，如 m, kg, h等
+     * 组合单位的符号将返回false，如 m/s。
      */
-    public boolean isAtomic() {
-        return isSingleSymbol() && !symbol.contains("^");
-    }
-
-    /**
-     * 该单位符号是否是原子单位带幂
-     *
-     */
-    public boolean hasPower() {
-        return isSingleSymbol() && symbol.contains("^");
+    public boolean isSingleSymbol() {
+        Matcher matcher = COMBINATION_JOINER.matcher(symbol);
+        return !matcher.find();
     }
 
     /**
@@ -48,8 +43,8 @@ public final class UnitSymbol {
      *
      * @return
      */
-    public List<UnitSymbol> split() {
-        Matcher matcher = JOINER.matcher(symbol);
+    public List<UnitSymbol> splitIntoSingleSymbol() {
+        Matcher matcher = COMBINATION_JOINER.matcher(symbol);
         List<UnitSymbol> unitSymbols = new ArrayList<>();
         int nextPower = 1;
         int start = 0;
@@ -59,30 +54,36 @@ public final class UnitSymbol {
             String prevUnit = symbol.substring(start, end);
             UnitSymbol unitSymbol = new UnitSymbol(prevUnit);
 
-            int power = unitSymbol.power() * nextPower;
+            int power = unitSymbol.index() * nextPower;
             unitSymbol = unitSymbol.power(power);
 
             unitSymbols.add(unitSymbol);
             start = end + 1;
-            if (group.equals("/")) {
+            if (group.equals(DIVIDE_JOINER)) {
                 nextPower = -1;
-            }else {
+            } else {
                 nextPower = 1;
             }
         }
-        String nextUnit = symbol.substring(start);
-        UnitSymbol nextUnitSymbol = UnitSymbol.of(nextUnit).power(nextPower);
-        unitSymbols.add(nextUnitSymbol);
+        if (start != 0) {
+            String nextUnit = symbol.substring(start);
+            UnitSymbol nextUnitSymbol = UnitSymbol.of(nextUnit).power(nextPower);
+            unitSymbols.add(nextUnitSymbol);
+        } else {
+            unitSymbols.add(this);
+        }
         return unitSymbols;
     }
 
     /**
-     * 去幂的单符号单位
-     * @return
+     * 对于原子单位带幂，如 kg, cm^2 ,m^3等，返回底数 kg, cm, m
+     * 对于复合单位，直接返回本身，如 m/s^2 返回 m/s^2
+     *
+     * @return 幂单位的底数
      */
-    public UnitSymbol atomicSymbol() {
+    public UnitSymbol base() {
         if (isSingleSymbol()) {
-            int index = symbol.lastIndexOf("^");
+            int index = symbol.indexOf(POWER_JOINER);
             if (index != -1) {
                 return UnitSymbol.of(symbol.substring(0, index));
             }
@@ -90,13 +91,17 @@ public final class UnitSymbol {
         return this;
     }
 
-    public int power() {
-        if (hasPower()) {
-            int index = symbol.lastIndexOf("^");
-            return Integer.parseInt(symbol.substring(index + 1));
-        }else {
-            return 1;
+    /**
+     * @return 幂单位的指数
+     */
+    public int index() {
+        if (isSingleSymbol()) {
+            int index = symbol.indexOf(POWER_JOINER);
+            if (index != -1) {
+                return Integer.parseInt(symbol.substring(index + 1));
+            }
         }
+        return 1;
     }
 
     public String symbol() {
@@ -104,41 +109,59 @@ public final class UnitSymbol {
     }
 
     public UnitSymbol times(UnitSymbol other) {
-        if (this.atomicSymbol().equals(other.atomicSymbol())) {
-            int finalPower = this.power() + other.power();
-            if (finalPower == 0) {
-                return null;
-            }
-            return UnitSymbol.of(symbol + "^" + finalPower);
-        } else {
-            return UnitSymbol.of(symbol + "*" + other.symbol);
+        Map<UnitSymbol, Integer> symbolPowerMap = singleSymbolPowerMap();
+
+        List<UnitSymbol> otherSymbols = other.splitIntoSingleSymbol();
+
+        for (UnitSymbol otherSymbol : otherSymbols) {
+            symbolPowerMap.merge(otherSymbol.base(), otherSymbol.index(), Integer::sum);
         }
+
+        return buildSymbol(symbolPowerMap);
     }
 
     public UnitSymbol divide(UnitSymbol other) {
-        if (this.atomicSymbol().equals(other.atomicSymbol())) {
-            int finalPower = this.power() - other.power();
-            if (finalPower == 0) {
-                return null;
-            }
-            return UnitSymbol.of(symbol + "^" + finalPower);
-        } else {
-            return UnitSymbol.of(symbol + "/" + other.symbol);
+        Map<UnitSymbol, Integer> symbolPowerMap = singleSymbolPowerMap();
+
+        List<UnitSymbol> otherSymbols = other.splitIntoSingleSymbol();
+
+        for (UnitSymbol otherSymbol : otherSymbols) {
+            symbolPowerMap.merge(otherSymbol.base(), -otherSymbol.index(), Integer::sum);
         }
+
+        return buildSymbol(symbolPowerMap);
+    }
+
+    private Map<UnitSymbol, Integer> singleSymbolPowerMap() {
+        List<UnitSymbol> originSymbols = this.splitIntoSingleSymbol();
+        Map<UnitSymbol, Integer> symbolPowerMap = new LinkedHashMap<>();
+
+        for (UnitSymbol originSymbol : originSymbols) {
+            symbolPowerMap.merge(originSymbol.base(), originSymbol.index(), Integer::sum);
+        }
+        return symbolPowerMap;
+    }
+
+    private UnitSymbol buildSymbol(Map<UnitSymbol, Integer> symbolPowerMap) {
+        return symbolPowerMap.entrySet()
+                .stream()
+                .filter((entry) -> entry.getValue() != 0)
+                .map(entry -> entry.getValue() == 1 ? entry.getKey() : entry.getKey().power(entry.getValue()))
+                .reduce((k1, k2) -> k1.appendWith(k2, "*"))
+                .orElse(null);
     }
 
     public UnitSymbol power(int power) {
-        int finalPower = this.power() * power;
+        int finalPower = this.index() * power;
         if (finalPower == 1) {
-            return this.atomicSymbol();
-        }else {
-            return UnitSymbol.of(this.atomicSymbol().symbol + "^" + finalPower);
+            return this.base();
+        } else {
+            return UnitSymbol.of(this.base().symbol + POWER_JOINER + finalPower);
         }
     }
 
-    private boolean isSingleSymbol() {
-        Matcher matcher = JOINER.matcher(symbol);
-        return !matcher.find();
+    private UnitSymbol appendWith(UnitSymbol symbol, String joiner) {
+        return UnitSymbol.of(this.symbol + joiner + symbol.symbol);
     }
 
     @Override
