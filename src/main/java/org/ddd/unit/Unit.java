@@ -42,7 +42,7 @@ public class Unit {
      * @return 是否是同类型的单位
      */
     public boolean isSameSystemFor(Unit target) {
-        return unitSystem().equals(target.unitSystem());
+        return unitSystem().type().equals(target.unitSystem().type());
     }
 
     /**
@@ -53,5 +53,10 @@ public class Unit {
      */
     public ConversionRate convertTo(Unit target) {
         return system.getConversionRate(this.symbol(), target.symbol());
+    }
+
+    @Override
+    public String toString() {
+        return symbol.symbol();
     }
 }

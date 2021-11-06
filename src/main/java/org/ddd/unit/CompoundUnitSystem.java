@@ -15,9 +15,9 @@ public class CompoundUnitSystem extends AbstractUnitSystem implements UnitSystem
 
     @Override
     public boolean containsUnit(UnitSymbol symbol) {
-        List<UnitSymbol> atomicUnits = symbol.splitIntoSingleSymbol();
-        for (UnitSymbol atomicUnit : atomicUnits) {
-            if (!contains(atomicUnit)) {
+        List<UnitSymbol> singleSymbols = symbol.splitIntoSingleSymbol();
+        for (UnitSymbol singleSymbol : singleSymbols) {
+            if (!contains(singleSymbol)) {
                 return false;
             }
         }

@@ -16,7 +16,7 @@ public class PowerUnitSystem extends AbstractUnitSystem implements UnitSystem {
 
     @Override
     public boolean containsUnit(UnitSymbol symbol) {
-        return originUnitSystem.containsUnit(symbol);
+        return originUnitSystem.containsUnit(symbol.base());
     }
 
     @Override

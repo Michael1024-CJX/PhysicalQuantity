@@ -147,7 +147,7 @@ public final class UnitSymbol {
                 .stream()
                 .filter((entry) -> entry.getValue() != 0)
                 .map(entry -> entry.getValue() == 1 ? entry.getKey() : entry.getKey().power(entry.getValue()))
-                .reduce((k1, k2) -> k1.appendWith(k2, "*"))
+                .reduce(UnitSymbol::appendWith)
                 .orElse(null);
     }
 
@@ -160,8 +160,8 @@ public final class UnitSymbol {
         }
     }
 
-    private UnitSymbol appendWith(UnitSymbol symbol, String joiner) {
-        return UnitSymbol.of(this.symbol + joiner + symbol.symbol);
+    private UnitSymbol appendWith(UnitSymbol symbol) {
+        return UnitSymbol.of(this.symbol + "*" + symbol.symbol);
     }
 
     @Override

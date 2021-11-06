@@ -35,6 +35,7 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
     private PhysicalQuantity(Number amount, Unit unit, UnitFactory unitFactory) {
         this.amount = amount;
         this.unit = unit;
+        this.unitFactory = unitFactory;
     }
 
     public PhysicalQuantity convertTo(Unit targetUnit) {

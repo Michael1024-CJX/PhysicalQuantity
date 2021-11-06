@@ -28,3 +28,7 @@ units:
   - type: area
     ratios:
       - m^2(平方米)
+
+  - type: speed
+    ratios:
+      - m/s(米每秒)
