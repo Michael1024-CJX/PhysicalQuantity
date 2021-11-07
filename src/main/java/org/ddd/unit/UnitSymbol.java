@@ -14,7 +14,6 @@ public final class UnitSymbol {
     private static final String DIVIDE_JOINER = "/";
     private static final String POWER_JOINER = "^";
     private static final Pattern COMBINATION_JOINER = Pattern.compile("([" + MULTIPLY_JOINER + DIVIDE_JOINER + "])");
-//    private static final Pattern ALL_JOINER = Pattern.compile("([" + MULTIPLY_JOINER + DIVIDE_JOINER + POWER_JOINER + "])");
 
     private final String symbol;
 
@@ -110,7 +109,7 @@ public final class UnitSymbol {
         Map<UnitSymbol, Integer> symbolPowerMap = singleSymbolPowerMap();
 
         List<UnitSymbol> otherSymbols = other.splitIntoSingleSymbol();
-
+        // 将底数相同的单位，指数相加
         for (UnitSymbol otherSymbol : otherSymbols) {
             symbolPowerMap.merge(otherSymbol.base(), otherSymbol.index(), Integer::sum);
         }
@@ -122,7 +121,7 @@ public final class UnitSymbol {
         Map<UnitSymbol, Integer> symbolPowerMap = singleSymbolPowerMap();
 
         List<UnitSymbol> otherSymbols = other.splitIntoSingleSymbol();
-
+        // 将底数相同的单位，指数相减
         for (UnitSymbol otherSymbol : otherSymbols) {
             symbolPowerMap.merge(otherSymbol.base(), -otherSymbol.index(), Integer::sum);
         }
@@ -162,6 +161,11 @@ public final class UnitSymbol {
         return UnitSymbol.of(this.symbol + "*" + symbol.symbol);
     }
 
+    public UnitSymbol format() {
+        Map<UnitSymbol, Integer> unitSymbolIntegerMap = singleSymbolPowerMap();
+        return buildSymbol(unitSymbolIntegerMap);
+    }
+
     @Override
     public String toString() {
         return symbol();
@@ -172,7 +176,7 @@ public final class UnitSymbol {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         UnitSymbol that = (UnitSymbol) o;
-        return Objects.equals(symbol, that.symbol);
+        return Objects.equals(this.format().symbol, that.format().symbol);
     }
 
     @Override

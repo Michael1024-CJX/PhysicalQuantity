@@ -44,6 +44,8 @@ public class UnitSymbolTest {
         UnitSymbol mds2And = UnitSymbol.of("m/s^2*s");
         System.out.println(mds2And.splitIntoSingleSymbol());
 
+        System.out.println(mds2And.format());
+
     }
 
     @Test
@@ -90,5 +92,16 @@ public class UnitSymbolTest {
 
         UnitSymbol s = UnitSymbol.of("s");
         assertEquals(UnitSymbol.of("m*s^-1"), m.divide(s));
+    }
+
+    @Test
+    public void testEquals() {
+        UnitSymbol m2 = UnitSymbol.of("m^2");
+        UnitSymbol m= UnitSymbol.of("m");
+        assertNotEquals(m2, m);
+
+        UnitSymbol ms1 = UnitSymbol.of("m/s");
+        UnitSymbol ms2 = UnitSymbol.of("m*s^-1");
+        assertEquals(ms1, ms2);
     }
 }
