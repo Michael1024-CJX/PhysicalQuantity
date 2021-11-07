@@ -54,15 +54,13 @@ public final class UnitSymbol {
             String prevUnit = symbol.substring(start, end);
             UnitSymbol unitSymbol = new UnitSymbol(prevUnit);
 
-            int power = unitSymbol.index() * nextPower;
-            unitSymbol = unitSymbol.power(power);
+            unitSymbol = unitSymbol.power(nextPower);
 
             unitSymbols.add(unitSymbol);
             start = end + 1;
+            // 除号后面的都为负幂
             if (group.equals(DIVIDE_JOINER)) {
                 nextPower = -1;
-            } else {
-                nextPower = 1;
             }
         }
         if (start != 0) {

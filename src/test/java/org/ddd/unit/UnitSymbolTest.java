@@ -40,6 +40,10 @@ public class UnitSymbolTest {
         assertEquals(2, mds2Split.size());
         assertEquals(m, mds2Split.get(0));
         assertEquals(UnitSymbol.of("s^-2"), mds2Split.get(1));
+
+        UnitSymbol mds2And = UnitSymbol.of("m/s^2*s");
+        System.out.println(mds2And.splitIntoSingleSymbol());
+
     }
 
     @Test
