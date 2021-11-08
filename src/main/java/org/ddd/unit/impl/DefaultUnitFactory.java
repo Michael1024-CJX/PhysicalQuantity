@@ -46,21 +46,21 @@ public class DefaultUnitFactory implements UnitFactory {
             PowerUnitSystem powerUnitSystem = getPowerUnitSystem(singleSymbol);
             systems.add(powerUnitSystem);
         }
-        CompoundUnitSystem compoundUnitSystem = new CompoundUnitSystem(systems, getMeasurement(unitSymbol));
+        CompoundUnitSystem compoundUnitSystem = new CompoundUnitSystem(systems);
         return compoundUnitSystem.getUnit(unitSymbol);
     }
 
     private PowerUnitSystem getPowerUnitSystem(UnitSymbol symbol) {
         Unit unit = unitMap.get(symbol.base());
-        return new PowerUnitSystem(unit.unitSystem(), symbol.index(), getMeasurement(symbol));
+        return new PowerUnitSystem(unit.unitSystem(), symbol.index());
     }
 
     @Override
     public Measurement getMeasurement(UnitSymbol unitSymbol) {
-        Unit unit = unitMap.get(unitSymbol);
-        if (unit != null) {
-            return unit.unitSystem().type();
-        }
+//        Unit unit = unitMap.get(unitSymbol);
+//        if (unit != null) {
+//            return unit.unitSystem().type();
+//        }
 
         return null;
     }
@@ -71,7 +71,7 @@ public class DefaultUnitFactory implements UnitFactory {
 
         allPhysicalQuantity.forEach(type -> {
             Measurement measurement = Measurement.of(type);
-            AtomicUnitSystem atomicUnitSystem = new AtomicUnitSystem(measurement, new LinkedMapContainer());
+            AtomicUnitSystem atomicUnitSystem = new AtomicUnitSystem(new LinkedMapContainer());
             unitSystemMap.putIfAbsent(measurement, atomicUnitSystem);
         });
     }
@@ -84,7 +84,7 @@ public class DefaultUnitFactory implements UnitFactory {
             UnitSystem unitSystem = unitSystemMap.get(measurement);
             if (unitSystem instanceof AtomicUnitSystem) {
                 Unit unit = ((AtomicUnitSystem) unitSystem).registerUnit(
-                        unitDefinition.getSymbol(), unitDefinition.getAlias());
+                        unitDefinition.getSymbol());
                 unitMap.put(unit.symbol(), unit);
             }
         });

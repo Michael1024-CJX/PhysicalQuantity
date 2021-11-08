@@ -4,16 +4,16 @@ package org.ddd.unit;
  * @author chenjx
  */
 public abstract class AbstractUnitSystem implements UnitSystem {
-    private Measurement type;
-
-    AbstractUnitSystem(Measurement type) {
-        this.type = type;
-    }
-
-    @Override
-    public Measurement type() {
-        return type;
-    }
+//    private Measurement type;
+//
+//    AbstractUnitSystem(Measurement type) {
+//        this.type = type;
+//    }
+//
+//    @Override
+//    public Measurement type() {
+//        return type;
+//    }
 
     @Override
     public Unit getUnit(UnitSymbol symbol) {

@@ -1,5 +1,8 @@
 package org.ddd.unit;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author chenjx
  */
@@ -7,9 +10,7 @@ public class PowerUnitSystem extends AbstractUnitSystem implements UnitSystem {
     private UnitSystem originUnitSystem;
     private int power;
 
-    public PowerUnitSystem(UnitSystem originUnitSystem, int power, Measurement measurement) {
-        super(measurement);
-        assert power != 0;
+    public PowerUnitSystem(UnitSystem originUnitSystem, int power) {
         this.originUnitSystem = originUnitSystem;
         this.power = power;
     }
@@ -17,6 +18,11 @@ public class PowerUnitSystem extends AbstractUnitSystem implements UnitSystem {
     @Override
     public boolean containsUnit(UnitSymbol symbol) {
         return originUnitSystem.containsUnit(symbol.base());
+    }
+
+    @Override
+    public UnitSymbol adapt(UnitSymbol from, UnitSymbol target) {
+        return originUnitSystem.adapt(from, target);
     }
 
     @Override
@@ -28,15 +34,7 @@ public class PowerUnitSystem extends AbstractUnitSystem implements UnitSystem {
         if (unit == null) {
             return null;
         }
-        return new Unit(symbol, this, newAlias(unit));
-    }
-
-    private String newAlias(Unit unit) {
-        if (power > 0) {
-            return power == 1? unit.alias() : power + "次方" + unit.alias();
-        }else {
-            return "每" + power + "次方" + unit.alias();
-        }
+        return new Unit(symbol, this);
     }
 
     @Override

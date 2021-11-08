@@ -50,7 +50,7 @@ public interface UnitContainer {
      *
      * @param unit 注册的单位
      */
-    void registerUnit(Unit unit);
+    void addUnit(Unit unit);
 
     /**
      * 注册两个单位之间的转换率
@@ -59,5 +59,5 @@ public interface UnitContainer {
      * @param denominatorUnit 分母单位
      * @param ratio 比率
      */
-    void registerConversionRate(UnitSymbol numeratorUnit, UnitSymbol denominatorUnit, Ratio ratio);
+    void addConversionRate(UnitSymbol numeratorUnit, UnitSymbol denominatorUnit, Ratio ratio);
 }

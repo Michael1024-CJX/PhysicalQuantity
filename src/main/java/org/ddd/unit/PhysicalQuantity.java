@@ -3,6 +3,8 @@ package org.ddd.unit;
 import org.ddd.util.NumberUtil;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 物理量，由数值和单位组成。同时，物理量具有一些行为：
@@ -26,16 +28,15 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
      */
     private Unit unit;
 
-    private UnitFactory unitFactory;
+//    private UnitFactory unitFactory;
 
-    static PhysicalQuantity of(Number amount, Unit unit, UnitFactory unitFactory) {
-        return new PhysicalQuantity(amount, unit, unitFactory);
+    static PhysicalQuantity of(Number amount, Unit unit) {
+        return new PhysicalQuantity(amount, unit);
     }
 
-    private PhysicalQuantity(Number amount, Unit unit, UnitFactory unitFactory) {
+    private PhysicalQuantity(Number amount, Unit unit) {
         this.amount = amount;
         this.unit = unit;
-        this.unitFactory = unitFactory;
     }
 
     public PhysicalQuantity convertTo(String symbol) {
@@ -47,54 +48,80 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
         if (rate == null) {
             throw new SymbolNotFoundException("无效的转换单位");
         }
+        return applyConversionRate(rate);
+    }
+
+    public PhysicalQuantity adaptedTo(UnitSymbol symbol) {
+        UnitSymbol rate = unit.adaptedTo(symbol);
+        return convertTo(rate);
+    }
+
+    private PhysicalQuantity applyConversionRate(ConversionRate rate) {
         Ratio ratio = rate.getRatio();
         Ratio times = ratio.times(new BigDecimal(getAmount().toString()));
 
-        return PhysicalQuantity.of(times.decimalValue(2, BigDecimal.ROUND_HALF_UP), rate.denominatorUnit(), unitFactory);
+        return PhysicalQuantity.of(times.decimalValue(2, BigDecimal.ROUND_HALF_UP), rate.denominatorUnit());
     }
 
+
     public PhysicalQuantity add(PhysicalQuantity augend) {
-        PhysicalQuantity sameUnitQuantity = augend.convertTo(this.unit.symbol());
+        PhysicalQuantity sameUnitQuantity = augend;
+        if (!this.unit.symbol().equals(augend.unit.symbol())) {
+            sameUnitQuantity = augend.convertTo(this.unit.symbol());
+        }
         Number add = NumberUtil.add(this.amount, sameUnitQuantity.amount);
-        return PhysicalQuantity.of(add, unit, unitFactory);
+        return PhysicalQuantity.of(add, unit);
     }
 
     public PhysicalQuantity subtract(PhysicalQuantity subtrahend) {
-        PhysicalQuantity sameUnitQuantity = subtrahend.convertTo(this.unit.symbol());
+        PhysicalQuantity sameUnitQuantity = subtrahend;
+        if (!this.unit.symbol().equals(subtrahend.unit.symbol())) {
+            sameUnitQuantity = subtrahend.convertTo(this.unit.symbol());
+        }
         Number subtract = NumberUtil.subtract(this.amount, sameUnitQuantity.amount);
-        return PhysicalQuantity.of(subtract, unit, unitFactory);
+        return PhysicalQuantity.of(subtract, unit);
     }
 
     public PhysicalQuantity multiply(PhysicalQuantity multiplicand) {
-        if (isSameTypeFor(multiplicand.unit)) {
-            multiplicand = multiplicand.convertTo(this.unit.symbol());
-        }
-        Number multiply = NumberUtil.multiply(this.amount, multiplicand.amount);
+        PhysicalQuantity sameUnitQuantity = multiplicand.adaptedTo(this.unit.symbol());
 
-        UnitSymbol timesUnit = unit.symbol().times(multiplicand.unit.symbol());
+        Number multiply = NumberUtil.multiply(this.amount, sameUnitQuantity.amount);
 
-        return PhysicalQuantity.of(multiply, unitFactory.getUnit(timesUnit), unitFactory);
+        UnitSystem unitSystem = newUnitSystem(multiplicand.unit);
+        UnitSymbol timesUnit = unit.symbol().times(sameUnitQuantity.unit.symbol());
+
+        return PhysicalQuantity.of(multiply, unitSystem.getUnit(timesUnit));
     }
 
     public PhysicalQuantity multiply(Number multiplicand) {
         Number multiply = NumberUtil.multiply(this.amount, multiplicand);
-        return PhysicalQuantity.of(multiply, this.unit, unitFactory);
+        return PhysicalQuantity.of(multiply, this.unit);
     }
 
     public PhysicalQuantity divide(PhysicalQuantity divisor) {
-        if (isSameTypeFor(divisor.unit)) {
-            divisor = divisor.convertTo(this.unit.symbol());
-        }
-        Number divide = NumberUtil.divide(this.amount, divisor.amount);
+        PhysicalQuantity sameUnitQuantity = divisor.adaptedTo(this.unit.symbol());
 
-        UnitSymbol divideUnit = unit.symbol().divide(divisor.unit.symbol());
+        Number divide = NumberUtil.divide(this.amount, sameUnitQuantity.amount);
 
-        return PhysicalQuantity.of(divide, unitFactory.getUnit(divideUnit), unitFactory);
+        UnitSymbol divideUnit = unit.symbol().divide(sameUnitQuantity.unit.symbol());
+        UnitSystem unitSystem = newUnitSystem(divisor.unit);
+
+        return PhysicalQuantity.of(divide, unitSystem.getUnit(divideUnit));
     }
 
     public PhysicalQuantity divide(Number divisor) {
         Number divide = NumberUtil.divide(this.amount, divisor);
-        return PhysicalQuantity.of(divide, this.unit, unitFactory);
+        return PhysicalQuantity.of(divide, this.unit);
+    }
+
+
+    private UnitSystem newUnitSystem(Unit another) {
+        if (another.symbol().base().equals(unit.symbol().base())) {
+            int index = another.symbol().index() + unit.symbol().index();
+            return new PowerUnitSystem(unit.unitSystem(), index);
+        }
+        List<UnitSystem> systems = Arrays.asList(unit.unitSystem(), another.unitSystem());
+        return new CompoundUnitSystem(systems);
     }
 
     @Override
@@ -103,9 +130,6 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
             return NumberUtil.compare(this.amount, o.amount);
         }
         PhysicalQuantity sameUnit = o.convertTo(this.unit.symbol());
-        if (sameUnit == null) {
-            throw new SymbolNotFoundException("单位类型不同，不能比较大小");
-        }
         return NumberUtil.compare(this.amount, sameUnit.amount);
     }
 
@@ -115,10 +139,6 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
 
     public Unit getUnit() {
         return unit;
-    }
-
-    private boolean isSameTypeFor(Unit unit) {
-        return this.unit.isSameSystemFor(unit);
     }
 
     @Override

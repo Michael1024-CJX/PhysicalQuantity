@@ -17,6 +17,6 @@ public class QuantityFactory {
         if (unit == null) {
             throw new SymbolNotFoundException("无效的单位符号");
         }
-        return PhysicalQuantity.of(value, unit, unitFactory);
+        return PhysicalQuantity.of(value, unit);
     }
 }

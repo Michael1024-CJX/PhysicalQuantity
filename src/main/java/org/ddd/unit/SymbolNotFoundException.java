@@ -5,7 +5,7 @@ package org.ddd.unit;
  */
 public class SymbolNotFoundException extends RuntimeException {
     public SymbolNotFoundException() {
-        super();
+        super("未查找到单位");
     }
 
     public SymbolNotFoundException(String message) {

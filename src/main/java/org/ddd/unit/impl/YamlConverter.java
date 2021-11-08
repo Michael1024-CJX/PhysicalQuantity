@@ -29,28 +29,29 @@ public class YamlConverter {
     private void parse(SingleUnitType singleUnitType) {
         String type = singleUnitType.getType();
         String[] ratios = singleUnitType.getRatios();
+        if (ratios != null) {
+            for (String ratio : ratios) {
+                if (!PATTERN.matcher(ratio).matches()) {
+                    throw new IllegalArgumentException("ratio 格式异常：" + ratio);
+                }
+                String[] strArr = ratio.split("[:=]");
+                ConversionRateDefinition definition = new ConversionRateDefinition();
+                definition.setMeasurement(type);
+                if (strArr.length == 1) {
+                    UnitDefinition unitDefinition = convertUnit(type, strArr[0]);
+                    unitDefinitions.add(unitDefinition);
+                    continue;
+                }
 
-        for (String ratio : ratios) {
-            if (!PATTERN.matcher(ratio).matches()) {
-                throw new IllegalArgumentException("ratio 格式异常：" + ratio);
+                UnitDefinition unitDefinition1 = convertUnit(type, strArr[0]);
+                UnitDefinition unitDefinition2 = convertUnit(type, strArr[1]);
+                definition.setNumeratorUnit(unitDefinition1.getSymbol());
+                definition.setDenominatorUnit(unitDefinition2.getSymbol());
+                definition.setRatio(convertRatio(strArr[2],strArr[3]));
+                unitDefinitions.add(unitDefinition1);
+                unitDefinitions.add(unitDefinition2);
+                conversionRateDefinitions.add(definition);
             }
-            String[] strArr = ratio.split("[:=]");
-            ConversionRateDefinition definition = new ConversionRateDefinition();
-            definition.setMeasurement(type);
-            if (strArr.length == 1) {
-                UnitDefinition unitDefinition = convertUnit(type, strArr[0]);
-                unitDefinitions.add(unitDefinition);
-                continue;
-            }
-
-            UnitDefinition unitDefinition1 = convertUnit(type, strArr[0]);
-            UnitDefinition unitDefinition2 = convertUnit(type, strArr[1]);
-            definition.setNumeratorUnit(unitDefinition1.getSymbol());
-            definition.setDenominatorUnit(unitDefinition2.getSymbol());
-            definition.setRatio(convertRatio(strArr[2],strArr[3]));
-            unitDefinitions.add(unitDefinition1);
-            unitDefinitions.add(unitDefinition2);
-            conversionRateDefinitions.add(definition);
         }
     }
 

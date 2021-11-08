@@ -12,7 +12,7 @@ public interface UnitSystem {
      *
      * @return 类型
      */
-    Measurement type();
+//    Measurement type();
 
     /**
      * 判断该单位制是否存在该物理单位
@@ -38,4 +38,6 @@ public interface UnitSystem {
      * @return 转换率
      */
     ConversionRate getConversionRate(UnitSymbol from, UnitSymbol to);
+
+    UnitSymbol adapt(UnitSymbol from, UnitSymbol target);
 }

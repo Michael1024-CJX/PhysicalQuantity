@@ -62,7 +62,7 @@ public class LinkedMapContainer implements UnitContainer {
     }
 
     @Override
-    public void registerUnit(Unit unit) {
+    public void addUnit(Unit unit) {
         unitMap.putIfAbsent(unit.symbol(), new UnitNode(unit));
     }
 
@@ -76,7 +76,7 @@ public class LinkedMapContainer implements UnitContainer {
      * @param ratio           比率
      */
     @Override
-    public void registerConversionRate(UnitSymbol numeratorUnit, UnitSymbol denominatorUnit, Ratio ratio) {
+    public void addConversionRate(UnitSymbol numeratorUnit, UnitSymbol denominatorUnit, Ratio ratio) {
         if (!contains(numeratorUnit) || !contains(denominatorUnit)) {
             throw new IllegalArgumentException("存在无效的单位");
         }

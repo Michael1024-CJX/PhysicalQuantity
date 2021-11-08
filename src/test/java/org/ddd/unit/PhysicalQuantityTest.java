@@ -72,11 +72,6 @@ public class PhysicalQuantityTest {
 
         PhysicalQuantity multiply = height1.multiply(height2);
 
-        System.out.println(multiply);
-
-        PhysicalQuantity expected = quantityFactory.of(2, "m^2");
-        Assert.assertEquals(0, multiply.compareTo(expected));
-
         PhysicalQuantity ms = quantityFactory.of(10, "m/s");
         PhysicalQuantity m1 = ms.multiply(quantityFactory.of(2, "s"));
         System.out.println(m1);

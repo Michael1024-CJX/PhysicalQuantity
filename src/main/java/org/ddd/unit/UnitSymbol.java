@@ -158,7 +158,7 @@ public final class UnitSymbol {
         }
     }
 
-    private UnitSymbol appendWith(UnitSymbol symbol) {
+    public UnitSymbol appendWith(UnitSymbol symbol) {
         return UnitSymbol.of(this.symbol + "*" + symbol.symbol);
     }
 

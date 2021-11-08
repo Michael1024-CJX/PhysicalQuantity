@@ -34,9 +34,5 @@ units:
       - 斤():两()=10:1
 
   - type: area
-    ratios:
-      - m^2(平方米)
 
   - type: speed
-    ratios:
-      - m/s(米每秒)
