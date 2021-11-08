@@ -142,7 +142,8 @@ public final class UnitSymbol {
     private UnitSymbol buildSymbol(Map<UnitSymbol, Integer> symbolPowerMap) {
         return symbolPowerMap.entrySet()
                 .stream()
-                .filter((entry) -> entry.getValue() != 0)
+                .filter(entry -> entry.getValue() != 0)
+//                .sorted((e1,e2) -> e2.getValue().compareTo(e1.getValue()))
                 .map(entry -> entry.getValue() == 1 ? entry.getKey() : entry.getKey().power(entry.getValue()))
                 .reduce(UnitSymbol::appendWith)
                 .orElse(null);

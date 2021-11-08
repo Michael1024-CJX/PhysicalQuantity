@@ -30,11 +30,14 @@ public class DefaultUnitFactory implements UnitFactory {
 
     @Override
     public Unit getUnit(UnitSymbol unitSymbol) {
+        if (unitMap.containsKey(unitSymbol)) {
+            return unitMap.get(unitSymbol);
+        }
+
         if (unitSymbol.isSingleSymbol()) {
             PowerUnitSystem powerUnitSystem = getPowerUnitSystem(unitSymbol);
             return powerUnitSystem.getUnit(unitSymbol);
         }
-
 
         List<UnitSymbol> singleSymbols = unitSymbol.splitIntoSingleSymbol();
         List<UnitSystem> systems = new ArrayList<>();
