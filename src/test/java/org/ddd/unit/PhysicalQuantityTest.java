@@ -2,12 +2,14 @@ package org.ddd.unit;
 
 import org.ddd.unit.impl.DefaultUnitFactory;
 import org.ddd.unit.impl.YAMLUnitRegister;
-import org.junit.Assert;
+import org.ddd.util.NumberUtil;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 import java.math.BigDecimal;
+
+import static org.junit.Assert.*;
 
 /**
  * @author chenjx
@@ -15,7 +17,6 @@ import java.math.BigDecimal;
 public class PhysicalQuantityTest {
     private QuantityFactory quantityFactory;
     private UnitFactory unitFactory;
-
     @Before
     public void init() {
         YAMLUnitRegister register = new YAMLUnitRegister(new File("src/test/resources/unit/"));
@@ -26,21 +27,32 @@ public class PhysicalQuantityTest {
     @Test
     public void testCreateQuantity() {
         PhysicalQuantity height = quantityFactory.of(180, "cm");
-        Assert.assertEquals("180cm", String.valueOf(height));
+        assertEquals(0, NumberUtil.compare(180, height.getAmount()));
+        assertEquals(unitFactory.getUnit("cm"), height.getUnit());
+
+
+        PhysicalQuantity area = quantityFactory.of(20, "m^2");
+        assertEquals(0, NumberUtil.compare(20, area.getAmount()));
+        assertEquals(unitFactory.getUnit("m^2"), area.getUnit());
+
+
+        PhysicalQuantity acceleration = quantityFactory.of(20, "m/s^2");
+        assertEquals(0, NumberUtil.compare(20, acceleration.getAmount()));
+        assertEquals(unitFactory.getUnit("m/s^2"), acceleration.getUnit());
+
     }
 
     @Test
-    public void testConvertToAtomicUnit() {
+    public void testConvertTo() {
         PhysicalQuantity height = quantityFactory.of(180, "cm");
         PhysicalQuantity heightByM = height.convertTo("m");
-        Assert.assertEquals("1.80m", String.valueOf(heightByM));
-    }
+        assertEquals(0, NumberUtil.compare(1.8, heightByM.getAmount()));
+        assertEquals(unitFactory.getUnit("m"), heightByM.getUnit());
 
-    @Test
-    public void testConvertToCompoundUnit() {
         PhysicalQuantity ms = quantityFactory.of(10, "m/s");
         PhysicalQuantity kmh = ms.convertTo("km/h");
-        Assert.assertEquals(0, new BigDecimal(36).compareTo(new BigDecimal(kmh.getAmount().toString())));
+        assertEquals(0, NumberUtil.compare(36, kmh.getAmount()));
+        assertEquals(unitFactory.getUnit("km/h"), kmh.getUnit());
     }
 
     @Test
@@ -51,7 +63,7 @@ public class PhysicalQuantityTest {
         PhysicalQuantity hairHeight = quantityFactory.of(5, "cm");
         PhysicalQuantity sum = height.add(hairHeight);
 
-        Assert.assertEquals(0, sum.compareTo(expected));
+        assertEquals(0, sum.compareTo(expected));
     }
 
     @Test
@@ -62,44 +74,57 @@ public class PhysicalQuantityTest {
 
         PhysicalQuantity multiply = height.multiply(2);
 
-        Assert.assertEquals(0, multiply.compareTo(expected));
+        assertEquals(0, multiply.compareTo(expected));
     }
 
     @Test
     public void testMultiplyQuantity() {
-        PhysicalQuantity height1 = quantityFactory.of(1, "m");
-        PhysicalQuantity height2 = quantityFactory.of(2, "m");
-
-        PhysicalQuantity multiply = height1.multiply(height2);
+        PhysicalQuantity length1 = quantityFactory.of(1, "m");
+        PhysicalQuantity length2 = quantityFactory.of(2, "m");
+        PhysicalQuantity area = length1.multiply(length2);
+        assertEquals(0, NumberUtil.compare(2, area.getAmount()));
+        assertEquals(unitFactory.getUnit("m^2"), area.getUnit());
 
         PhysicalQuantity ms = quantityFactory.of(10, "m/s");
-        PhysicalQuantity m1 = ms.multiply(quantityFactory.of(2, "s"));
-        System.out.println(m1);
+        PhysicalQuantity length3 = ms.multiply(quantityFactory.of(2, "s"));
+        assertEquals(0, NumberUtil.compare(20, length3.getAmount()));
+        assertEquals(unitFactory.getUnit("m"), length3.getUnit());
 
-        PhysicalQuantity min = ms.multiply(quantityFactory.of(2, "min"));
-        System.out.println(min);
+
+        PhysicalQuantity length4 = ms.multiply(quantityFactory.of(2, "min"));
+        assertEquals(0, NumberUtil.compare(1200, length4.getAmount()));
+        assertEquals(unitFactory.getUnit("m"), length4.getUnit());
+
+        PhysicalQuantity gs = quantityFactory.of(10, "g/s");
+        PhysicalQuantity kgm = quantityFactory.of(10, "kg*min");
+        PhysicalQuantity kgms = gs.multiply(kgm);
+        assertEquals(0, NumberUtil.compare(6000000, kgms.getAmount()));
+        assertEquals(unitFactory.getUnit("g^2"), kgms.getUnit());
     }
 
     @Test
     public void testDivideNumber() {
-        PhysicalQuantity expected = quantityFactory.of(50, "cm");
-
         PhysicalQuantity height = quantityFactory.of(1, "m");
-
-        PhysicalQuantity multiply = height.divide(2);
-
-        Assert.assertEquals(0, multiply.compareTo(expected));
+        PhysicalQuantity divide = height.divide(2);
+        assertEquals(0, NumberUtil.compare(0.5, divide.getAmount()));
+        assertEquals(unitFactory.getUnit("m"), divide.getUnit());
     }
 
     @Test
     public void testDivideQuantity() {
-        PhysicalQuantity expected = quantityFactory.of(50, "cm");
+        PhysicalQuantity length = quantityFactory.of(1000, "m");
+        PhysicalQuantity s = quantityFactory.of(50, "s");
+        PhysicalQuantity speed = length.divide(s);
+        assertEquals(0, NumberUtil.compare(20, speed.getAmount()));
+        assertEquals(unitFactory.getUnit("m/s"), speed.getUnit());
 
-        PhysicalQuantity height = quantityFactory.of(1, "m");
-
-        PhysicalQuantity multiply = height.divide(2);
-
-        Assert.assertEquals(0, multiply.compareTo(expected));
+        PhysicalQuantity s2 = quantityFactory.of(1, "min");
+        PhysicalQuantity acceleration = speed.divide(s2);
+        assertEquals(0,
+                NumberUtil.compare(
+                        BigDecimal.ONE.divide(BigDecimal.valueOf(3), NumberUtil.DEFAULT),
+                        acceleration.getAmount()));
+        assertEquals(unitFactory.getUnit("m/s^2"), acceleration.getUnit());
     }
 
     @Test
@@ -107,6 +132,6 @@ public class PhysicalQuantityTest {
         PhysicalQuantity m = quantityFactory.of(1, "m");
         PhysicalQuantity cm = quantityFactory.of(100, "cm");
 
-        Assert.assertEquals(0, m.compareTo(cm));
+        assertEquals(0, m.compareTo(cm));
     }
 }

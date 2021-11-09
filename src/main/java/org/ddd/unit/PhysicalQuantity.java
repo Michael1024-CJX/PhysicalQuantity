@@ -60,7 +60,7 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
         Ratio ratio = rate.getRatio();
         Ratio times = ratio.times(new BigDecimal(getAmount().toString()));
 
-        return PhysicalQuantity.of(times.decimalValue(2, BigDecimal.ROUND_HALF_UP), rate.denominatorUnit());
+        return PhysicalQuantity.of(times.decimalValue(NumberUtil.DEFAULT), rate.denominatorUnit());
     }
 
 
@@ -104,7 +104,7 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
         Number divide = NumberUtil.divide(this.amount, sameUnitQuantity.amount);
 
         UnitSymbol divideUnit = unit.symbol().divide(sameUnitQuantity.unit.symbol());
-        UnitSystem unitSystem = newUnitSystem(divisor.unit);
+        UnitSystem unitSystem = newNegativePowerUnitSystem(divisor.unit);
 
         return PhysicalQuantity.of(divide, unitSystem.getUnit(divideUnit));
     }
@@ -121,6 +121,15 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
             return new PowerUnitSystem(unit.unitSystem(), index);
         }
         List<UnitSystem> systems = Arrays.asList(unit.unitSystem(), another.unitSystem());
+        return new CompoundUnitSystem(systems);
+    }
+
+    private UnitSystem newNegativePowerUnitSystem(Unit another) {
+        if (another.symbol().base().equals(unit.symbol().base())) {
+            int index = another.symbol().index() + unit.symbol().index();
+            return new PowerUnitSystem(unit.unitSystem(), -index);
+        }
+        List<UnitSystem> systems = Arrays.asList(unit.unitSystem(), new PowerUnitSystem(another.unitSystem(), -1));
         return new CompoundUnitSystem(systems);
     }
 

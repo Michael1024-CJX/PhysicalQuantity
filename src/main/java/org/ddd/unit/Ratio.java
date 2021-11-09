@@ -1,6 +1,7 @@
 package org.ddd.unit;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 
 /**
  * @author chenjx
@@ -22,6 +23,10 @@ public final class Ratio {
 
     public BigDecimal decimalValue(int scale, int roundingRule) {
         return numerator.divide(denominator, scale, roundingRule);
+    }
+
+    public BigDecimal decimalValue(MathContext mc) {
+        return numerator.divide(denominator, mc);
     }
 
     /**
