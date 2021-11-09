@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 /**
  * @author chenjx
  */
-public class YAMLMeasurementUnitContextTest {
+public class UnitFactoryTest {
     private UnitFactory factory;
 
     @Before

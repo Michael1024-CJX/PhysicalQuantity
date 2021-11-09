@@ -111,6 +111,23 @@ public class PhysicalQuantityTest {
     }
 
     @Test
+    public void testMultiplyAndDivide() {
+        PhysicalQuantity length = quantityFactory.of(100, "m");
+        PhysicalQuantity time = quantityFactory.of(20, "s");
+        PhysicalQuantity speed = length.divide(time);
+
+        PhysicalQuantity spend = quantityFactory.of(2, "min");
+        PhysicalQuantity result = speed.multiply(spend);
+
+        assertEquals(0, NumberUtil.compare(600, result.getAmount()));
+        assertEquals(unitFactory.getUnit("m"), result.getUnit());
+
+        PhysicalQuantity physicalQuantity = speed.convertTo("km/h");
+        assertEquals(0, NumberUtil.compare(18, physicalQuantity.getAmount()));
+        assertEquals(unitFactory.getUnit("km/h"), physicalQuantity.getUnit());
+    }
+
+    @Test
     public void testDivideQuantity() {
         PhysicalQuantity length = quantityFactory.of(1000, "m");
         PhysicalQuantity s = quantityFactory.of(50, "s");
