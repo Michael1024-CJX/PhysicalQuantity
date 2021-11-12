@@ -31,11 +31,6 @@ public class ConversionRate {
     public ConversionRate reverse() {
         return new ConversionRate(denominatorUnit, numeratorUnit, ratio.reciprocal());
     }
-//
-//    public PhysicalQuantity apply(PhysicalQuantity quantity) {
-//        Ratio times = ratio.times(new BigDecimal(quantity.getAmount().toString()));
-//        return PhysicalQuantity.of(times.decimalValue(2, BigDecimal.ROUND_HALF_UP), denominatorUnit);
-//    }
 
     @Override
     public String toString() {

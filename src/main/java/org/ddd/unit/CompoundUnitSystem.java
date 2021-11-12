@@ -16,10 +16,6 @@ public class CompoundUnitSystem extends AbstractUnitSystem implements UnitSystem
         this.systems = systems;
     }
 
-    public void addUnitSystem(UnitSystem system) {
-        systems.add(system);
-    }
-
     @Override
     public boolean containsUnit(UnitSymbol symbol) {
         List<UnitSymbol> singleSymbols = symbol.splitIntoSingleSymbol();
