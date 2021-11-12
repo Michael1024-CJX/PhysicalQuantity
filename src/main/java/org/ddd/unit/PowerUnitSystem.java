@@ -1,9 +1,8 @@
 package org.ddd.unit;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
+ * 带幂的单位系
+ *
  * @author chenjx
  */
 public class PowerUnitSystem extends AbstractUnitSystem implements UnitSystem {

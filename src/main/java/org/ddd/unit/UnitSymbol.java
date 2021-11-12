@@ -39,8 +39,6 @@ public final class UnitSymbol {
 
     /**
      * 将复合单位拆分成原子单位，m/s拆分成 m 和 s^-1, m/s^2 拆分成 m 和 s^-2
-     *
-     * @return
      */
     public List<UnitSymbol> splitIntoSingleSymbol() {
         Matcher matcher = COMBINATION_JOINER.matcher(symbol);
@@ -165,6 +163,10 @@ public final class UnitSymbol {
     public UnitSymbol format() {
         Map<UnitSymbol, Integer> unitSymbolIntegerMap = singleSymbolPowerMap();
         return buildSymbol(unitSymbolIntegerMap);
+    }
+
+    public boolean baseEquals(UnitSymbol another) {
+        return base().equals(another.base());
     }
 
     @Override

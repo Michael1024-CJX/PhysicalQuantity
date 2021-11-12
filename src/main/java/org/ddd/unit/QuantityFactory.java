@@ -1,7 +1,7 @@
 package org.ddd.unit;
 
 /**
- *
+ * 数量工厂，用于创建数量
  *
  * @author chenjx
  */

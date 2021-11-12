@@ -8,13 +8,6 @@ package org.ddd.unit;
  */
 public interface UnitSystem {
     /**
-     * 单位制的类型，如：长度，时间，质量，面积等。
-     *
-     * @return 类型
-     */
-//    Measurement type();
-
-    /**
      * 判断该单位制是否存在该物理单位
      *
      * @param symbol 待判断的单位
@@ -39,5 +32,13 @@ public interface UnitSystem {
      */
     ConversionRate getConversionRate(UnitSymbol from, UnitSymbol to);
 
+    /**
+     * 将 from 与 target中原子单位底数类型相同的单位转换成统一的单位。
+     * 如，为了适配 min 与 m/s 的运算，需要先将 min -> s， 再与m/s运算
+     *
+     * @param from 原单位
+     * @param target 与之运算的单位
+     * @return 适配的单位符号
+     */
     UnitSymbol adapt(UnitSymbol from, UnitSymbol target);
 }

@@ -1,8 +1,5 @@
 package org.ddd.unit;
 
-import java.util.Collection;
-import java.util.List;
-
 /**
  * 量度单位的容器
  * 用于存储同量度的单位

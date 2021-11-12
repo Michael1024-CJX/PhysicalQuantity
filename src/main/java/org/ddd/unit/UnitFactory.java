@@ -11,6 +11,4 @@ public interface UnitFactory {
     }
 
     Unit getUnit(UnitSymbol unitSymbol);
-
-    Measurement getMeasurement(UnitSymbol unitSymbol);
 }

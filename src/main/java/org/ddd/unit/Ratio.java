@@ -6,7 +6,6 @@ import java.math.MathContext;
 /**
  * @author chenjx
  */
-@SuppressWarnings("WeakerAccess")
 public final class Ratio {
     static final Ratio ONE_RATIO = new Ratio(BigDecimal.ONE, BigDecimal.ONE);
     private BigDecimal numerator;

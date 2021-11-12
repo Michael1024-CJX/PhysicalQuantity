@@ -1,7 +1,5 @@
 package org.ddd.unit.impl;
 
-import org.ddd.unit.impl.SingleUnitType;
-
 import java.util.List;
 
 /**

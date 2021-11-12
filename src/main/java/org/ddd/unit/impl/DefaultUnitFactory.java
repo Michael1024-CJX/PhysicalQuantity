@@ -55,17 +55,6 @@ public class DefaultUnitFactory implements UnitFactory {
         return new PowerUnitSystem(unit.unitSystem(), symbol.index());
     }
 
-    @Override
-    public Measurement getMeasurement(UnitSymbol unitSymbol) {
-//        Unit unit = unitMap.get(unitSymbol);
-//        if (unit != null) {
-//            return unit.unitSystem().type();
-//        }
-
-        return null;
-    }
-
-
     private void registerPhysicalQuantity(UnitRegister register) {
         Collection<String> allPhysicalQuantity = register.getAllMeasurements();
 

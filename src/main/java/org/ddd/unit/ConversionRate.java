@@ -1,7 +1,5 @@
 package org.ddd.unit;
 
-import java.math.BigDecimal;
-
 /**
  * 转换率
  *

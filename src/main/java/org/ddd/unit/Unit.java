@@ -1,5 +1,6 @@
 package org.ddd.unit;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,38 +16,19 @@ public class Unit {
      * 单位制，如长度，质量，时间等
      */
     private UnitSystem system;
-//    /**
-//     * 单位别名，用于读作
-//     */
-//    private String alias;
 
     public Unit(UnitSymbol symbol, UnitSystem system) {
         this.symbol = symbol;
         this.system = system;
-//        this.alias = alias;
     }
 
     public UnitSymbol symbol() {
         return symbol;
     }
 
-//    public String alias() {
-//        return alias;
-//    }
-
     public UnitSystem unitSystem() {
         return system;
     }
-
-    /**
-     * 判断是否与该物理单位是否同类型
-     *
-     * @param target 待比较的物理单位
-     * @return 是否是同类型的单位
-     */
-//    public boolean isSameSystemFor(Unit target) {
-//        return unitSystem().containsUnit(target.symbol());
-//    }
 
     /**
      * 获取与目标单位的的比率，需要两个单位属于同物理量
@@ -71,6 +53,48 @@ public class Unit {
 
     public UnitSymbol adaptedTo(UnitSymbol target) {
         return system.adapt(this.symbol(), target);
+    }
+
+    public Unit multiply(Unit another) {
+        UnitSymbol timesUnit = this.symbol.times(another.symbol());
+
+        UnitSystem newSystem;
+        if (another.symbol().baseEquals(this.symbol)) {
+            int index = another.symbol().index() + symbol().index();
+            if (index == 0) {
+                return null;
+            }else if (index == 1) {
+                newSystem = this.unitSystem();
+            }else {
+                newSystem = new PowerUnitSystem(unitSystem(), index);
+            }
+        }else {
+            List<UnitSystem> systems = Arrays.asList(unitSystem(), another.unitSystem());
+            newSystem = new CompoundUnitSystem(systems);
+        }
+
+        return newSystem.getUnit(timesUnit);
+    }
+
+    public Unit divide(Unit another) {
+        UnitSymbol timesUnit = this.symbol.divide(another.symbol());
+
+        UnitSystem newSystem;
+        if (another.symbol().baseEquals(this.symbol)) {
+            int index = symbol().index() - another.symbol().index();
+            if (index == 0) {
+                return null;
+            }else if (index == 1) {
+                newSystem = this.unitSystem();
+            }else {
+                newSystem = new PowerUnitSystem(unitSystem(), index);
+            }
+        }else {
+            List<UnitSystem> systems = Arrays.asList(unitSystem(), new PowerUnitSystem(another.unitSystem(), -1));
+            newSystem = new CompoundUnitSystem(systems);
+        }
+
+        return newSystem.getUnit(timesUnit);
     }
 
     @Override

@@ -125,6 +125,10 @@ public class PhysicalQuantityTest {
         PhysicalQuantity physicalQuantity = speed.convertTo("km/h");
         assertEquals(0, NumberUtil.compare(18, physicalQuantity.getAmount()));
         assertEquals(unitFactory.getUnit("km/h"), physicalQuantity.getUnit());
+
+        PhysicalQuantity s = physicalQuantity.multiply(quantityFactory.of(3600, "s"));
+        assertEquals(0, NumberUtil.compare(18, s.getAmount()));
+        assertEquals(unitFactory.getUnit("km"), s.getUnit());
     }
 
     @Test

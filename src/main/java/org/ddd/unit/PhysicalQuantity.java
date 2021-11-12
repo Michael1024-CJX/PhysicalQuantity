@@ -3,8 +3,6 @@ package org.ddd.unit;
 import org.ddd.util.NumberUtil;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * 物理量，由数值和单位组成。同时，物理量具有一些行为：
@@ -28,8 +26,6 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
      */
     private Unit unit;
 
-//    private UnitFactory unitFactory;
-
     static PhysicalQuantity of(Number amount, Unit unit) {
         return new PhysicalQuantity(amount, unit);
     }
@@ -38,31 +34,6 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
         this.amount = amount;
         this.unit = unit;
     }
-
-    public PhysicalQuantity convertTo(String symbol) {
-        return convertTo(UnitSymbol.of(symbol));
-    }
-
-    public PhysicalQuantity convertTo(UnitSymbol symbol) {
-        ConversionRate rate = unit.convertTo(symbol);
-        if (rate == null) {
-            throw new SymbolNotFoundException("无效的转换单位");
-        }
-        return applyConversionRate(rate);
-    }
-
-    public PhysicalQuantity adaptedTo(UnitSymbol symbol) {
-        UnitSymbol rate = unit.adaptedTo(symbol);
-        return convertTo(rate);
-    }
-
-    private PhysicalQuantity applyConversionRate(ConversionRate rate) {
-        Ratio ratio = rate.getRatio();
-        Ratio times = ratio.times(new BigDecimal(getAmount().toString()));
-
-        return PhysicalQuantity.of(times.decimalValue(NumberUtil.DEFAULT), rate.denominatorUnit());
-    }
-
 
     public PhysicalQuantity add(PhysicalQuantity augend) {
         PhysicalQuantity sameUnitQuantity = augend;
@@ -83,14 +54,12 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
     }
 
     public PhysicalQuantity multiply(PhysicalQuantity multiplicand) {
-        PhysicalQuantity sameUnitQuantity = multiplicand.adaptedTo(this.unit.symbol());
+        multiplicand = multiplicand.adaptedTo(this.unit.symbol());
 
-        Number multiply = NumberUtil.multiply(this.amount, sameUnitQuantity.amount);
+        Number multiply = NumberUtil.multiply(this.amount, multiplicand.amount);
+        Unit newUnit = this.unit.multiply(multiplicand.unit);
 
-        UnitSystem unitSystem = newUnitSystem(multiplicand.unit);
-        UnitSymbol timesUnit = unit.symbol().times(sameUnitQuantity.unit.symbol());
-
-        return PhysicalQuantity.of(multiply, unitSystem.getUnit(timesUnit));
+        return PhysicalQuantity.of(multiply, newUnit);
     }
 
     public PhysicalQuantity multiply(Number multiplicand) {
@@ -99,14 +68,12 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
     }
 
     public PhysicalQuantity divide(PhysicalQuantity divisor) {
-        PhysicalQuantity sameUnitQuantity = divisor.adaptedTo(this.unit.symbol());
+        divisor = divisor.adaptedTo(this.unit.symbol());
 
-        Number divide = NumberUtil.divide(this.amount, sameUnitQuantity.amount);
+        Number divide = NumberUtil.divide(this.amount, divisor.amount);
 
-        UnitSymbol divideUnit = unit.symbol().divide(sameUnitQuantity.unit.symbol());
-        UnitSystem unitSystem = newNegativePowerUnitSystem(divisor.unit);
-
-        return PhysicalQuantity.of(divide, unitSystem.getUnit(divideUnit));
+        Unit newUnit = this.unit.divide(divisor.unit);
+        return PhysicalQuantity.of(divide, newUnit);
     }
 
     public PhysicalQuantity divide(Number divisor) {
@@ -114,23 +81,28 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
         return PhysicalQuantity.of(divide, this.unit);
     }
 
-
-    private UnitSystem newUnitSystem(Unit another) {
-        if (another.symbol().base().equals(unit.symbol().base())) {
-            int index = another.symbol().index() + unit.symbol().index();
-            return new PowerUnitSystem(unit.unitSystem(), index);
-        }
-        List<UnitSystem> systems = Arrays.asList(unit.unitSystem(), another.unitSystem());
-        return new CompoundUnitSystem(systems);
+    public PhysicalQuantity convertTo(String symbol) {
+        return convertTo(UnitSymbol.of(symbol));
     }
 
-    private UnitSystem newNegativePowerUnitSystem(Unit another) {
-        if (another.symbol().base().equals(unit.symbol().base())) {
-            int index = another.symbol().index() + unit.symbol().index();
-            return new PowerUnitSystem(unit.unitSystem(), -index);
+    public PhysicalQuantity convertTo(UnitSymbol symbol) {
+        ConversionRate rate = unit.convertTo(symbol);
+        if (rate == null) {
+            throw new SymbolNotFoundException("无效的转换单位");
         }
-        List<UnitSystem> systems = Arrays.asList(unit.unitSystem(), new PowerUnitSystem(another.unitSystem(), -1));
-        return new CompoundUnitSystem(systems);
+        return applyConversionRate(rate);
+    }
+
+    private PhysicalQuantity applyConversionRate(ConversionRate rate) {
+        Ratio ratio = rate.getRatio();
+        Ratio times = ratio.times(new BigDecimal(getAmount().toString()));
+
+        return PhysicalQuantity.of(times.decimalValue(NumberUtil.DEFAULT), rate.denominatorUnit());
+    }
+
+    public PhysicalQuantity adaptedTo(UnitSymbol symbol) {
+        UnitSymbol rate = unit.adaptedTo(symbol);
+        return convertTo(rate);
     }
 
     @Override

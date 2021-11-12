@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * 组合单位系
+ *
  * @author chenjx
  */
 public class CompoundUnitSystem extends AbstractUnitSystem implements UnitSystem {
@@ -36,17 +38,6 @@ public class CompoundUnitSystem extends AbstractUnitSystem implements UnitSystem
         ArrayList<UnitSymbol> result = new ArrayList<>();
         for (UnitSymbol fromS : fromSS) {
             UnitSystem unitSystem = getUnitSystem(fromS);
-//            boolean flag = false;
-//            for (UnitSymbol targetS : targetSS) {
-//                if (unitSystem.containsUnit(targetS)) {
-//                    result.add(targetS);
-//                    flag = true;
-//                    break;
-//                }
-//            }
-//            if (!flag) {
-//                result.add(fromS);
-//            }
             UnitSymbol adapt = unitSystem.adapt(fromS, target);
             result.add(adapt);
         }
