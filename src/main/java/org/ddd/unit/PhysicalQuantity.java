@@ -3,6 +3,7 @@ package org.ddd.unit;
 import org.ddd.util.NumberUtil;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.Arrays;
 
 /**
@@ -55,7 +56,11 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
     }
 
     public PhysicalQuantity multiply(PhysicalQuantity multiplicand) {
-        multiplicand = multiplicand.adaptedTo(this.unit.getSymbol());
+        return multiply(multiplicand, NumberUtil.DEFAULT);
+    }
+
+    public PhysicalQuantity multiply(PhysicalQuantity multiplicand, MathContext mc) {
+        multiplicand = multiplicand.adaptedTo(this.unit.getSymbol(), mc);
 
         Number multiply = NumberUtil.multiply(this.amount, multiplicand.amount);
         CompoundUnit newUnit = new CompoundUnit(Arrays.asList(this.unit, multiplicand.unit));
@@ -63,50 +68,62 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
     }
 
     public PhysicalQuantity multiply(Number multiplicand) {
+        return multiply(multiplicand, NumberUtil.DEFAULT);
+    }
+
+    public PhysicalQuantity multiply(Number multiplicand, MathContext mc) {
         Number multiply = NumberUtil.multiply(this.amount, multiplicand);
         return PhysicalQuantity.of(multiply, this.unit);
     }
 
     public PhysicalQuantity divide(PhysicalQuantity divisor) {
-        divisor = divisor.adaptedTo(this.unit.getSymbol());
+        return divide(divisor, NumberUtil.DEFAULT);
+    }
 
-        Number divide = NumberUtil.divide(this.amount, divisor.amount);
+    public PhysicalQuantity divide(PhysicalQuantity divisor, MathContext mc) {
+        divisor = divisor.adaptedTo(this.unit.getSymbol(), mc);
+
+        Number divide = NumberUtil.divide(this.amount, divisor.amount, mc);
         CompoundUnit newUnit = new CompoundUnit(Arrays.asList(this.unit, divisor.unit.opposite()));
         return PhysicalQuantity.of(divide, newUnit);
     }
 
     public PhysicalQuantity divide(Number divisor) {
-        Number divide = NumberUtil.divide(this.amount, divisor);
+        return divide(divisor, NumberUtil.DEFAULT);
+    }
+
+    public PhysicalQuantity divide(Number divisor, MathContext mc) {
+        Number divide = NumberUtil.divide(this.amount, divisor, mc);
         return PhysicalQuantity.of(divide, this.unit);
     }
 
-    public PhysicalQuantity convertTo(String symbol) {
-        return convertTo(UnitSymbol.of(symbol));
+    public PhysicalQuantity convertTo(UnitSymbol symbol) {
+        return convertTo(symbol, NumberUtil.DEFAULT);
     }
 
-    public PhysicalQuantity convertTo(UnitSymbol symbol) {
+    public PhysicalQuantity convertTo(UnitSymbol symbol, MathContext mc) {
         ConversionRate rate = unit.convertTo(symbol);
         if (rate == null) {
             throw new SymbolNotFoundException("无效的转换单位");
         }
-        return applyConversionRate(rate);
+        return applyConversionRate(rate, mc);
     }
 
-    private PhysicalQuantity adaptedTo(UnitSymbol symbol) {
+    private PhysicalQuantity adaptedTo(UnitSymbol symbol, MathContext mc) {
         ConversionRate rate = unit.adaptTo(symbol);
-        return applyConversionRate(rate);
+        return applyConversionRate(rate, mc);
     }
 
-    private PhysicalQuantity applyConversionRate(ConversionRate rate) {
+    private PhysicalQuantity applyConversionRate(ConversionRate rate, MathContext mc) {
         Ratio ratio = rate.getRatio();
         Ratio times = ratio.times(new BigDecimal(getAmount().toString()));
 
-        return PhysicalQuantity.of(times.decimalValue(NumberUtil.DEFAULT), rate.denominatorUnit());
+        return PhysicalQuantity.of(times.decimalValue(mc), rate.denominatorUnit());
     }
 
     @Override
     public int compareTo(PhysicalQuantity o) {
-        if (this.unit.equals(o.unit)) {
+        if (this.unit.isEquals(o.unit)) {
             return NumberUtil.compare(this.amount, o.amount);
         }
         PhysicalQuantity sameUnit = o.convertTo(this.unit.getSymbol());

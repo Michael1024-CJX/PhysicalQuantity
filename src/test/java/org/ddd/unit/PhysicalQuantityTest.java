@@ -43,12 +43,12 @@ public class PhysicalQuantityTest {
     @Test
     public void testConvertTo() {
         PhysicalQuantity height = quantityFactory.of(180, "cm");
-        PhysicalQuantity heightByM = height.convertTo("m");
+        PhysicalQuantity heightByM = height.convertTo(UnitSymbol.of("m"));
         assertEquals(0,  compare(1.8, heightByM.getAmount()));
         assertTrue(unitFactory.getUnit("m").isEquals(heightByM.getUnit()));
 
         PhysicalQuantity ms = quantityFactory.of(10, "m/s");
-        PhysicalQuantity kmh = ms.convertTo("km/h");
+        PhysicalQuantity kmh = ms.convertTo(UnitSymbol.of("km/h"));
         assertEquals(0,  compare(36, kmh.getAmount()));
         assertTrue(unitFactory.getUnit("km/h").isEquals(kmh.getUnit()));
     }
@@ -120,7 +120,7 @@ public class PhysicalQuantityTest {
         assertEquals(0,  compare(600, result.getAmount()));
         assertTrue(unitFactory.getUnit("m").isEquals(result.getUnit()));
 
-        PhysicalQuantity physicalQuantity = speed.convertTo("km/h");
+        PhysicalQuantity physicalQuantity = speed.convertTo(UnitSymbol.of("km/h"));
         assertEquals(0,  compare(18, physicalQuantity.getAmount()));
         assertTrue(unitFactory.getUnit("km/h").isEquals(physicalQuantity.getUnit()));
 
@@ -158,7 +158,7 @@ public class PhysicalQuantityTest {
         assertEquals(0, compare(10, acceleration.getAmount()));
         assertTrue(unitFactory.getUnit("m/s^2").isEquals(acceleration.getUnit()));
 
-        PhysicalQuantity kmhAcceleration = acceleration.convertTo("km/h^2");
+        PhysicalQuantity kmhAcceleration = acceleration.convertTo(UnitSymbol.of("km/h^2"));
         assertEquals(0, compare(129600, kmhAcceleration.getAmount()));
         assertTrue(unitFactory.getUnit("km/h^2").isEquals(kmhAcceleration.getUnit()));
     }
