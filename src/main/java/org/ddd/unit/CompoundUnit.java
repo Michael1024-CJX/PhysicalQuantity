@@ -20,20 +20,32 @@ public class CompoundUnit implements Unit {
         return symbol;
     }
 
+    /**
+     * 对于复合单位
+     * @param symbol
+     * @return
+     */
     @Override
     public boolean isSameTypeAs(UnitSymbol symbol) {
-        List<UnitSymbol> singleSymbol = symbol.getBasicSymbols();
-        for (UnitSymbol unitSymbol : singleSymbol) {
-            if (!containsType(unitSymbol)) {
+        List<UnitSymbol> basicSymbols = symbol.getBasicSymbols();
+        Iterator<Unit> unitIterator = this.iterator();
+
+        while (unitIterator.hasNext() && !basicSymbols.isEmpty()) {
+
+            Unit unit = unitIterator.next();
+            if (!removeSameTypeSymbol(basicSymbols, unit)) {
                 return false;
             }
         }
-        return true;
+
+        return !unitIterator.hasNext() && basicSymbols.isEmpty();
     }
 
-    private boolean containsType(UnitSymbol symbol) {
-        for (Unit unit : units) {
-            if (unit.isSameTypeAs(symbol)) {
+    private boolean removeSameTypeSymbol(List<UnitSymbol> basicSymbols, Unit unit) {
+        for (int i = 0; i < basicSymbols.size(); i++) {
+            UnitSymbol unitSymbol = basicSymbols.get(i);
+            if (unit.isSameTypeAs(unitSymbol)) {
+                basicSymbols.remove(i);
                 return true;
             }
         }
@@ -85,6 +97,11 @@ public class CompoundUnit implements Unit {
         List<Unit> oppositeUnits = units.stream().map(Unit::opposite).collect(Collectors.toList());
 
         return new CompoundUnit(oppositeUnits);
+    }
+
+    @Override
+    public Iterator<Unit> iterator() {
+        return new CompoundUnitIterator(units.iterator());
     }
 
     private UnitSymbol createSymbol() {

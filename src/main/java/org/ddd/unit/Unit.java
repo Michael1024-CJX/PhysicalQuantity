@@ -16,6 +16,10 @@ public interface Unit {
 
     Unit opposite();
 
+    default Iterator<Unit> iterator() {
+        return null;
+    }
+
     default boolean isEquals(Unit another) {
         return another.getSymbol().equals(getSymbol());
     }

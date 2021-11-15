@@ -2,13 +2,14 @@ package org.ddd.unit;
 
 import org.ddd.unit.impl.DefaultUnitFactory;
 import org.ddd.unit.impl.YAMLUnitRegister;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+
+import static org.junit.Assert.*;
 
 /**
  * @author chenjx
@@ -29,7 +30,7 @@ public class UnitFactoryTest {
         ConversionRate ratioOfMToRuler = m.convertTo(ruler.getSymbol());
 
         BigDecimal ratioValue = ratioOfMToRuler.getRatio().decimalValue(0, BigDecimal.ROUND_HALF_UP);
-        Assert.assertEquals("米与尺的比例不符合预期", 0, new BigDecimal(3).compareTo(ratioValue));
+        assertEquals("米与尺的比例不符合预期", 0, new BigDecimal(3).compareTo(ratioValue));
     }
 
     @Test
@@ -39,7 +40,7 @@ public class UnitFactoryTest {
 
         ConversionRate ratioOfSToH = s.convertTo(h.getSymbol());
         BigDecimal ratioValue = ratioOfSToH.getRatio().decimalValue(5, BigDecimal.ROUND_HALF_UP);
-        Assert.assertEquals("秒与时的比例不符合预期", 0, BigDecimal.ONE.divide(new BigDecimal(3600), 5, BigDecimal.ROUND_HALF_UP).compareTo(ratioValue));
+        assertEquals("秒与时的比例不符合预期", 0, BigDecimal.ONE.divide(new BigDecimal(3600), 5, BigDecimal.ROUND_HALF_UP).compareTo(ratioValue));
     }
 
     @Test
@@ -47,7 +48,7 @@ public class UnitFactoryTest {
         Unit h = factory.getUnit("h");
         ConversionRate ratioOfHToH = h.convertTo(h.getSymbol());
         BigDecimal ratioValue = ratioOfHToH.getRatio().decimalValue(0, BigDecimal.ROUND_HALF_UP);
-        Assert.assertEquals("时与时的比例不符合预期", 0, BigDecimal.ONE.compareTo(ratioValue));
+        assertEquals("时与时的比例不符合预期", 0, BigDecimal.ONE.compareTo(ratioValue));
     }
 
     @Test
@@ -57,17 +58,25 @@ public class UnitFactoryTest {
 
         ConversionRate ratioOfHToM = h.convertTo(m.getSymbol());
 
-        Assert.assertNull("不同物理量类型的单位不可互相转换", ratioOfHToM);
+        assertNull("不同物理量类型的单位不可互相转换", ratioOfHToM);
     }
 
     @Test
     public void testIsSameType() {
-//        Unit m = factory.getUnit("m");
-//        Unit ruler = factory.getUnit("尺");
-//        Assert.assertTrue(m.isSameSystemFor(ruler));
-//
-//
-//        Unit h = factory.getUnit("h");
-//        Assert.assertFalse(m.isSameSystemFor(h));
+        Unit m = factory.getUnit("m");
+        UnitSymbol symbol = UnitSymbol.of("尺");
+        assertTrue(m.isSameTypeAs(symbol));
+
+
+        Unit h = factory.getUnit("h");
+        assertFalse(h.isSameTypeAs(symbol));
+
+        Unit ms = factory.getUnit("m/s");
+        assertFalse(ms.isSameTypeAs(m.getSymbol()));
+        assertFalse(m.isSameTypeAs(ms.getSymbol()));
+
+        Unit mas = factory.getUnit("m*s");
+        assertFalse(mas.isSameTypeAs(m.getSymbol()));
+        assertFalse(m.isSameTypeAs(mas.getSymbol()));
     }
 }
