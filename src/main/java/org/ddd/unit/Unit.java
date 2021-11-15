@@ -14,8 +14,6 @@ public interface Unit {
 
     ConversionRate adaptTo(UnitSymbol target);
 
-    Iterator<Unit> iterator();
-
     Unit opposite();
 
     default boolean isEquals(Unit another) {

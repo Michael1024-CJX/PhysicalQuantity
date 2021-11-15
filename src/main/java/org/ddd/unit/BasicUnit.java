@@ -56,11 +56,6 @@ public class BasicUnit implements Unit {
     }
 
     @Override
-    public Iterator<Unit> iterator() {
-        return null;
-    }
-
-    @Override
     public String toString() {
         return symbol.symbol();
     }

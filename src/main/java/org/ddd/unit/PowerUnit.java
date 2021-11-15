@@ -76,11 +76,6 @@ public class PowerUnit implements Unit {
     }
 
     @Override
-    public Iterator<Unit> iterator() {
-        return null;
-    }
-
-    @Override
     public Unit opposite() {
         return new PowerUnit(base, -index);
     }

@@ -87,18 +87,8 @@ public class CompoundUnit implements Unit {
         return new CompoundUnit(oppositeUnits);
     }
 
-    @Override
-    public Iterator<Unit> iterator() {
-        return new CompoundUnitIterator(units.iterator());
-    }
-
     private UnitSymbol createSymbol() {
         return units.stream()
-//                .map(entry -> {
-//                    Unit baseUnit = entry.getKey();
-//                    UnitSymbol symbol = baseUnit.getSymbol();
-//                    return symbol.power(entry.getValue());
-//                })
                 .map(Unit::getSymbol)
                 .reduce(UnitSymbol::times)
                 .orElseThrow(IllegalArgumentException::new);
