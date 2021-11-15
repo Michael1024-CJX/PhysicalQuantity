@@ -3,6 +3,7 @@ package org.ddd.unit;
 import org.ddd.util.NumberUtil;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 /**
  * 物理量，由数值和单位组成。同时，物理量具有一些行为：
@@ -37,8 +38,8 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
 
     public PhysicalQuantity add(PhysicalQuantity augend) {
         PhysicalQuantity sameUnitQuantity = augend;
-        if (!this.unit.symbol().equals(augend.unit.symbol())) {
-            sameUnitQuantity = augend.convertTo(this.unit.symbol());
+        if (!this.unit.getSymbol().equals(augend.unit.getSymbol())) {
+            sameUnitQuantity = augend.convertTo(this.unit.getSymbol());
         }
         Number add = NumberUtil.add(this.amount, sameUnitQuantity.amount);
         return PhysicalQuantity.of(add, unit);
@@ -46,19 +47,18 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
 
     public PhysicalQuantity subtract(PhysicalQuantity subtrahend) {
         PhysicalQuantity sameUnitQuantity = subtrahend;
-        if (!this.unit.symbol().equals(subtrahend.unit.symbol())) {
-            sameUnitQuantity = subtrahend.convertTo(this.unit.symbol());
+        if (!this.unit.getSymbol().equals(subtrahend.unit.getSymbol())) {
+            sameUnitQuantity = subtrahend.convertTo(this.unit.getSymbol());
         }
         Number subtract = NumberUtil.subtract(this.amount, sameUnitQuantity.amount);
         return PhysicalQuantity.of(subtract, unit);
     }
 
     public PhysicalQuantity multiply(PhysicalQuantity multiplicand) {
-        multiplicand = multiplicand.adaptedTo(this.unit.symbol());
+        multiplicand = multiplicand.adaptedTo(this.unit.getSymbol());
 
         Number multiply = NumberUtil.multiply(this.amount, multiplicand.amount);
-        Unit newUnit = this.unit.multiply(multiplicand.unit);
-
+        CompoundUnit newUnit = new CompoundUnit(Arrays.asList(this.unit, multiplicand.unit));
         return PhysicalQuantity.of(multiply, newUnit);
     }
 
@@ -68,11 +68,10 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
     }
 
     public PhysicalQuantity divide(PhysicalQuantity divisor) {
-        divisor = divisor.adaptedTo(this.unit.symbol());
+        divisor = divisor.adaptedTo(this.unit.getSymbol());
 
         Number divide = NumberUtil.divide(this.amount, divisor.amount);
-
-        Unit newUnit = this.unit.divide(divisor.unit);
+        CompoundUnit newUnit = new CompoundUnit(Arrays.asList(this.unit, divisor.unit.opposite()));
         return PhysicalQuantity.of(divide, newUnit);
     }
 
@@ -93,6 +92,11 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
         return applyConversionRate(rate);
     }
 
+    private PhysicalQuantity adaptedTo(UnitSymbol symbol) {
+        ConversionRate rate = unit.adaptTo(symbol);
+        return applyConversionRate(rate);
+    }
+
     private PhysicalQuantity applyConversionRate(ConversionRate rate) {
         Ratio ratio = rate.getRatio();
         Ratio times = ratio.times(new BigDecimal(getAmount().toString()));
@@ -100,17 +104,12 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
         return PhysicalQuantity.of(times.decimalValue(NumberUtil.DEFAULT), rate.denominatorUnit());
     }
 
-    public PhysicalQuantity adaptedTo(UnitSymbol symbol) {
-        UnitSymbol rate = unit.adaptedTo(symbol);
-        return convertTo(rate);
-    }
-
     @Override
     public int compareTo(PhysicalQuantity o) {
         if (this.unit.equals(o.unit)) {
             return NumberUtil.compare(this.amount, o.amount);
         }
-        PhysicalQuantity sameUnit = o.convertTo(this.unit.symbol());
+        PhysicalQuantity sameUnit = o.convertTo(this.unit.getSymbol());
         return NumberUtil.compare(this.amount, sameUnit.amount);
     }
 

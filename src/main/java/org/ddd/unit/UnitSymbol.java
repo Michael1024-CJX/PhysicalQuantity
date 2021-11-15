@@ -13,7 +13,8 @@ public final class UnitSymbol {
     private static final String MULTIPLY_JOINER = "*·";
     private static final String DIVIDE_JOINER = "/";
     private static final String POWER_JOINER = "^";
-    private static final Pattern COMBINATION_JOINER = Pattern.compile("([" + MULTIPLY_JOINER + DIVIDE_JOINER + "])");
+    private static final Pattern CALC_JOINER = Pattern.compile("([" + MULTIPLY_JOINER + DIVIDE_JOINER + "])");
+    private static final Pattern COMBINATION_JOINER = Pattern.compile("([" + MULTIPLY_JOINER + DIVIDE_JOINER + POWER_JOINER + "])");
 
     private final String symbol;
 
@@ -30,19 +31,56 @@ public final class UnitSymbol {
 
     /**
      * 判断符号是否只有一种，如 m, kg, h等
-     * 组合单位的符号将返回false，如 m/s。
+     * 组合单位的符号将返回false，如 m/s, m^2。
      */
-    public boolean isSingleSymbol() {
+    public boolean isBasic() {
         Matcher matcher = COMBINATION_JOINER.matcher(symbol);
         return !matcher.find();
+    }
+
+    public boolean isSingle() {
+        Matcher matcher = CALC_JOINER.matcher(symbol);
+        return !matcher.find();
+    }
+
+    public List<UnitSymbol> getBasicSymbols() {
+        List<UnitSymbol> singleSymbol = splitIntoSingleSymbol();
+        List<UnitSymbol> basicSymbols = new ArrayList<>();
+        for (UnitSymbol unitSymbol : singleSymbol) {
+            basicSymbols.addAll(unitSymbol.splitPowerSymbol());
+        }
+        return basicSymbols;
+    }
+
+    private List<UnitSymbol> splitPowerSymbol() {
+        int absIndex = Math.abs(index());
+        if (absIndex == 1) {
+            return Collections.singletonList(this);
+        }
+
+        int subIndex = indexSymbol();
+        UnitSymbol base = base();
+        ArrayList<UnitSymbol> unitSymbols = new ArrayList<>(absIndex);
+        for (int i = 0; i < absIndex; i++) {
+            unitSymbols.add(base.power(subIndex));
+        }
+        return unitSymbols;
+    }
+
+    /**
+     * 正幂返回1, 负幂返回-1, 0返回0
+     */
+    private int indexSymbol() {
+        int index = index();
+        return (index >> 31) - (-index >> 31);
     }
 
     /**
      * 将复合单位拆分成原子单位，m/s拆分成 m 和 s^-1, m/s^2 拆分成 m 和 s^-2
      */
-    public List<UnitSymbol> splitIntoSingleSymbol() {
-        Matcher matcher = COMBINATION_JOINER.matcher(symbol);
+    private List<UnitSymbol> splitIntoSingleSymbol() {
         List<UnitSymbol> unitSymbols = new ArrayList<>();
+        Matcher matcher = CALC_JOINER.matcher(symbol);
         int nextPower = 1;
         int start = 0;
         while (matcher.find()) {
@@ -77,7 +115,7 @@ public final class UnitSymbol {
      * @return 幂单位的底数
      */
     public UnitSymbol base() {
-        if (isSingleSymbol()) {
+        if (isSingle()) {
             int index = symbol.indexOf(POWER_JOINER);
             if (index != -1) {
                 return UnitSymbol.of(symbol.substring(0, index));
@@ -90,7 +128,7 @@ public final class UnitSymbol {
      * @return 幂单位的指数
      */
     public int index() {
-        if (isSingleSymbol()) {
+        if (isSingle()) {
             int index = symbol.indexOf(POWER_JOINER);
             if (index != -1) {
                 return Integer.parseInt(symbol.substring(index + 1));
@@ -110,18 +148,6 @@ public final class UnitSymbol {
         // 将底数相同的单位，指数相加
         for (UnitSymbol otherSymbol : otherSymbols) {
             symbolPowerMap.merge(otherSymbol.base(), otherSymbol.index(), Integer::sum);
-        }
-
-        return buildSymbol(symbolPowerMap);
-    }
-
-    public UnitSymbol divide(UnitSymbol other) {
-        Map<UnitSymbol, Integer> symbolPowerMap = singleSymbolPowerMap();
-
-        List<UnitSymbol> otherSymbols = other.splitIntoSingleSymbol();
-        // 将底数相同的单位，指数相减
-        for (UnitSymbol otherSymbol : otherSymbols) {
-            symbolPowerMap.merge(otherSymbol.base(), -otherSymbol.index(), Integer::sum);
         }
 
         return buildSymbol(symbolPowerMap);
@@ -156,17 +182,13 @@ public final class UnitSymbol {
         }
     }
 
-    public UnitSymbol appendWith(UnitSymbol symbol) {
+    private UnitSymbol appendWith(UnitSymbol symbol) {
         return UnitSymbol.of(this.symbol + "*" + symbol.symbol);
     }
 
     public UnitSymbol format() {
         Map<UnitSymbol, Integer> unitSymbolIntegerMap = singleSymbolPowerMap();
         return buildSymbol(unitSymbolIntegerMap);
-    }
-
-    public boolean baseEquals(UnitSymbol another) {
-        return base().equals(another.base());
     }
 
     @Override

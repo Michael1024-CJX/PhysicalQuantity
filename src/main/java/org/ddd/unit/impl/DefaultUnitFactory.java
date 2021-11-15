@@ -2,11 +2,11 @@ package org.ddd.unit.impl;
 
 import org.ddd.unit.*;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * @author chenjx
@@ -30,29 +30,27 @@ public class DefaultUnitFactory implements UnitFactory {
 
     @Override
     public Unit getUnit(UnitSymbol unitSymbol) {
-        if (unitMap.containsKey(unitSymbol)) {
-            return unitMap.get(unitSymbol);
+        if (unitSymbol.isBasic()) {
+            Unit baseUnit = unitMap.get(unitSymbol);
+            return PowerUnit.ofPositive(baseUnit);
         }
 
-        if (unitSymbol.isSingleSymbol()) {
-            PowerUnitSystem powerUnitSystem = getPowerUnitSystem(unitSymbol);
-            return powerUnitSystem.getUnit(unitSymbol);
-        }
-
-        List<UnitSymbol> singleSymbols = unitSymbol.splitIntoSingleSymbol();
-        List<UnitSystem> systems = new ArrayList<>();
-
-        for (UnitSymbol singleSymbol : singleSymbols) {
-            PowerUnitSystem powerUnitSystem = getPowerUnitSystem(singleSymbol);
-            systems.add(powerUnitSystem);
-        }
-        CompoundUnitSystem compoundUnitSystem = new CompoundUnitSystem(systems);
-        return compoundUnitSystem.getUnit(unitSymbol);
+        List<UnitSymbol> singleSymbol = unitSymbol.getBasicSymbols();
+        List<Unit> units = singleSymbol.stream()
+                .map(this::getSingleSymbolUnit)
+                .collect(Collectors.toList());
+        return new CompoundUnit(units);
     }
 
-    private PowerUnitSystem getPowerUnitSystem(UnitSymbol symbol) {
-        Unit unit = unitMap.get(symbol.base());
-        return new PowerUnitSystem(unit.unitSystem(), symbol.index());
+    private Unit getSingleSymbolUnit(UnitSymbol unitSymbol) {
+        int index = unitSymbol.index();
+        if (index == 1) {
+            Unit baseUnit = unitMap.get(unitSymbol);
+            return PowerUnit.ofPositive(baseUnit);
+        } else {
+            Unit baseUnit = unitMap.get(unitSymbol.base());
+            return PowerUnit.ofNegative(baseUnit);
+        }
     }
 
     private void registerPhysicalQuantity(UnitRegister register) {
@@ -60,7 +58,7 @@ public class DefaultUnitFactory implements UnitFactory {
 
         allPhysicalQuantity.forEach(type -> {
             Measurement measurement = Measurement.of(type);
-            AtomicUnitSystem atomicUnitSystem = new AtomicUnitSystem(new LinkedMapContainer());
+            UnitSystem atomicUnitSystem = new BasicUnitSystem(new LinkedMapContainer());
             unitSystemMap.putIfAbsent(measurement, atomicUnitSystem);
         });
     }
@@ -71,10 +69,10 @@ public class DefaultUnitFactory implements UnitFactory {
         allUnitDefinition.forEach(unitDefinition -> {
             Measurement measurement = Measurement.of(unitDefinition.getMeasurement());
             UnitSystem unitSystem = unitSystemMap.get(measurement);
-            if (unitSystem instanceof AtomicUnitSystem) {
-                Unit unit = ((AtomicUnitSystem) unitSystem).registerUnit(
+            if (unitSystem instanceof BasicUnitSystem) {
+                Unit unit = ((BasicUnitSystem) unitSystem).registerUnit(
                         unitDefinition.getSymbol());
-                unitMap.put(unit.symbol(), unit);
+                unitMap.put(unit.getSymbol(), unit);
             }
         });
     }
@@ -85,8 +83,8 @@ public class DefaultUnitFactory implements UnitFactory {
         rates.forEach(conversionRate -> {
             Measurement measurement = Measurement.of(conversionRate.getMeasurement());
             UnitSystem unitSystem = unitSystemMap.get(measurement);
-            if (unitSystem instanceof AtomicUnitSystem) {
-                ((AtomicUnitSystem) unitSystem).registerConversionRate(conversionRate.getNumeratorUnit(),
+            if (unitSystem instanceof BasicUnitSystem) {
+                ((BasicUnitSystem) unitSystem).registerConversionRate(conversionRate.getNumeratorUnit(),
                         conversionRate.getDenominatorUnit(),
                         conversionRate.getRatio());
             }

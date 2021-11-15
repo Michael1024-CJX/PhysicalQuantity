@@ -9,43 +9,55 @@ import static org.junit.Assert.*;
 public class UnitSymbolTest {
 
     @Test
-    public void isAtomic() {
+    public void isBasic() {
         UnitSymbol m = UnitSymbol.of("m");
-        assertTrue(m.isSingleSymbol());
+        assertTrue(m.isBasic());
 
         UnitSymbol mp2 = UnitSymbol.of("m^2");
-        assertTrue(mp2.isSingleSymbol());
+        assertFalse(mp2.isBasic());
 
         UnitSymbol mds = UnitSymbol.of("m/s");
-        assertFalse(mds.isSingleSymbol());
+        assertFalse(mds.isBasic());
 
         UnitSymbol mds2 = UnitSymbol.of("m/s^2");
-        assertFalse(mds.isSingleSymbol());
+        assertFalse(mds.isBasic());
     }
+
+
 
     @Test
     public void split() {
         UnitSymbol m = UnitSymbol.of("m");
-        List<UnitSymbol> split = m.splitIntoSingleSymbol();
+        UnitSymbol mp2 = UnitSymbol.of("m^2");
+        UnitSymbol mds2 = UnitSymbol.of("m/s^2");
+        UnitSymbol ns = UnitSymbol.of("s^-1");
+        UnitSymbol mds2Ands = UnitSymbol.of("m/s^2*g");
+        UnitSymbol ng = UnitSymbol.of("g^-1");
+
+        List<UnitSymbol> split = m.getBasicSymbols();
         assertEquals(1, split.size());
         assertEquals(m, split.get(0));
 
-        UnitSymbol mp2 = UnitSymbol.of("m^2");
-        List<UnitSymbol> mp2Split = mp2.splitIntoSingleSymbol();
-        assertEquals(1, mp2Split.size());
-        assertEquals(mp2, mp2Split.get(0));
 
-        UnitSymbol mds2 = UnitSymbol.of("m/s^2");
-        List<UnitSymbol> mds2Split = mds2.splitIntoSingleSymbol();
-        assertEquals(2, mds2Split.size());
+        List<UnitSymbol> mp2Split = mp2.getBasicSymbols();
+        assertEquals(2, mp2Split.size());
+        assertEquals(m, mp2Split.get(0));
+        assertEquals(m, mp2Split.get(1));
+
+
+        List<UnitSymbol> mds2Split = mds2.getBasicSymbols();
+        assertEquals(3, mds2Split.size());
         assertEquals(m, mds2Split.get(0));
-        assertEquals(UnitSymbol.of("s^-2"), mds2Split.get(1));
+        assertEquals(ns, mds2Split.get(1));
+        assertEquals(ns, mds2Split.get(2));
 
-        UnitSymbol mds2And = UnitSymbol.of("m/s^2*s");
-        System.out.println(mds2And.splitIntoSingleSymbol());
 
-        System.out.println(mds2And.format());
-
+        List<UnitSymbol> basicSymbols = mds2Ands.getBasicSymbols();
+        assertEquals(4, basicSymbols.size());
+        assertEquals(m, mds2Split.get(0));
+        assertEquals(ns, basicSymbols.get(1));
+        assertEquals(ns, basicSymbols.get(2));
+        assertEquals(ng, basicSymbols.get(3));
     }
 
     @Test
@@ -81,17 +93,6 @@ public class UnitSymbolTest {
         UnitSymbol ms = UnitSymbol.of("m/s");
         UnitSymbol s = UnitSymbol.of("s");
         assertEquals(UnitSymbol.of("m"), ms.times(s));
-    }
-
-    @Test
-    public void divide() {
-        UnitSymbol m2 = UnitSymbol.of("m^2");
-        UnitSymbol m= UnitSymbol.of("m");
-        assertEquals(UnitSymbol.of("m"), m2.divide(m));
-
-
-        UnitSymbol s = UnitSymbol.of("s");
-        assertEquals(UnitSymbol.of("m*s^-1"), m.divide(s));
     }
 
     @Test

@@ -23,7 +23,7 @@ public class LinkedMapContainer implements UnitContainer {
 
     @Override
     public boolean contains(Unit unit) {
-        return unitMap.containsKey(unit.symbol());
+        return unitMap.containsKey(unit.getSymbol());
     }
 
     @Override
@@ -63,7 +63,7 @@ public class LinkedMapContainer implements UnitContainer {
 
     @Override
     public void addUnit(Unit unit) {
-        unitMap.putIfAbsent(unit.symbol(), new UnitNode(unit));
+        unitMap.putIfAbsent(unit.getSymbol(), new UnitNode(unit));
     }
 
     /**

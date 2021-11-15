@@ -160,11 +160,11 @@ public class UnitNode {
     @Override
     public String toString() {
         return "UnitNode{" +
-                "unit=" + unit().symbol() +
+                "unit=" + unit().getSymbol() +
                 ", ratioToNext=" + ratioToNext +
                 ", index=" + index +
-                ", prev=" + (prev == null ? null :prev.unit().symbol()) +
-                ", next=" + (next == null ? null :next.unit().symbol()) +
+                ", prev=" + (prev == null ? null :prev.unit().getSymbol()) +
+                ", next=" + (next == null ? null :next.unit().getSymbol()) +
                 '}';
     }
 }

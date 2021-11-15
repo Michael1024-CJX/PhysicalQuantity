@@ -28,18 +28,16 @@ public class PhysicalQuantityTest {
     public void testCreateQuantity() {
         PhysicalQuantity height = quantityFactory.of(180, "cm");
         assertEquals(0,  compare(180, height.getAmount()));
-        assertEquals(unitFactory.getUnit("cm"), height.getUnit());
+        assertTrue(unitFactory.getUnit("cm").isEquals(height.getUnit()));
 
 
         PhysicalQuantity area = quantityFactory.of(20, "m^2");
         assertEquals(0,  compare(20, area.getAmount()));
-        assertEquals(unitFactory.getUnit("m^2"), area.getUnit());
-
+        assertTrue(unitFactory.getUnit("m^2").isEquals(area.getUnit()));
 
         PhysicalQuantity acceleration = quantityFactory.of(20, "m/s^2");
         assertEquals(0,  compare(20, acceleration.getAmount()));
-        assertEquals(unitFactory.getUnit("m/s^2"), acceleration.getUnit());
-
+        assertTrue(unitFactory.getUnit("m/s^2").isEquals(acceleration.getUnit()));
     }
 
     @Test
@@ -47,12 +45,12 @@ public class PhysicalQuantityTest {
         PhysicalQuantity height = quantityFactory.of(180, "cm");
         PhysicalQuantity heightByM = height.convertTo("m");
         assertEquals(0,  compare(1.8, heightByM.getAmount()));
-        assertEquals(unitFactory.getUnit("m"), heightByM.getUnit());
+        assertTrue(unitFactory.getUnit("m").isEquals(heightByM.getUnit()));
 
         PhysicalQuantity ms = quantityFactory.of(10, "m/s");
         PhysicalQuantity kmh = ms.convertTo("km/h");
         assertEquals(0,  compare(36, kmh.getAmount()));
-        assertEquals(unitFactory.getUnit("km/h"), kmh.getUnit());
+        assertTrue(unitFactory.getUnit("km/h").isEquals(kmh.getUnit()));
     }
 
     @Test
@@ -83,23 +81,23 @@ public class PhysicalQuantityTest {
         PhysicalQuantity length2 = quantityFactory.of(2, "m");
         PhysicalQuantity area = length1.multiply(length2);
         assertEquals(0,  compare(2, area.getAmount()));
-        assertEquals(unitFactory.getUnit("m^2"), area.getUnit());
+        assertTrue(unitFactory.getUnit("m^2").isEquals(area.getUnit()));
 
         PhysicalQuantity ms = quantityFactory.of(10, "m/s");
         PhysicalQuantity length3 = ms.multiply(quantityFactory.of(2, "s"));
         assertEquals(0,  compare(20, length3.getAmount()));
-        assertEquals(unitFactory.getUnit("m"), length3.getUnit());
+        assertTrue(unitFactory.getUnit("m").isEquals(length3.getUnit()));
 
 
         PhysicalQuantity length4 = ms.multiply(quantityFactory.of(2, "min"));
         assertEquals(0,  compare(1200, length4.getAmount()));
-        assertEquals(unitFactory.getUnit("m"), length4.getUnit());
+        assertTrue(unitFactory.getUnit("m").isEquals(length4.getUnit()));
 
         PhysicalQuantity gs = quantityFactory.of(10, "g/s");
         PhysicalQuantity kgm = quantityFactory.of(10, "kg*min");
         PhysicalQuantity kgms = gs.multiply(kgm);
         assertEquals(0,  compare(6000000, kgms.getAmount()));
-        assertEquals(unitFactory.getUnit("g^2"), kgms.getUnit());
+        assertTrue(unitFactory.getUnit("g^2").isEquals(kgms.getUnit()));
     }
 
     @Test
@@ -107,7 +105,7 @@ public class PhysicalQuantityTest {
         PhysicalQuantity height = quantityFactory.of(1, "m");
         PhysicalQuantity divide = height.divide(2);
         assertEquals(0,  compare(0.5, divide.getAmount()));
-        assertEquals(unitFactory.getUnit("m"), divide.getUnit());
+        assertTrue(unitFactory.getUnit("m").isEquals(divide.getUnit()));
     }
 
     @Test
@@ -120,15 +118,16 @@ public class PhysicalQuantityTest {
         PhysicalQuantity result = speed.multiply(spend);
 
         assertEquals(0,  compare(600, result.getAmount()));
-        assertEquals(unitFactory.getUnit("m"), result.getUnit());
+        assertTrue(unitFactory.getUnit("m").isEquals(result.getUnit()));
 
         PhysicalQuantity physicalQuantity = speed.convertTo("km/h");
         assertEquals(0,  compare(18, physicalQuantity.getAmount()));
-        assertEquals(unitFactory.getUnit("km/h"), physicalQuantity.getUnit());
+        assertTrue(unitFactory.getUnit("km/h").isEquals(physicalQuantity.getUnit()));
+
 
         PhysicalQuantity s = physicalQuantity.multiply(quantityFactory.of(3600, "s"));
         assertEquals(0,  compare(18, s.getAmount()));
-        assertEquals(unitFactory.getUnit("km"), s.getUnit());
+        assertTrue(unitFactory.getUnit("km").isEquals(s.getUnit()));
     }
 
     @Test
@@ -137,7 +136,7 @@ public class PhysicalQuantityTest {
         PhysicalQuantity s = quantityFactory.of(50, "s");
         PhysicalQuantity speed = length.divide(s);
         assertEquals(0, compare(20, speed.getAmount()));
-        assertEquals(unitFactory.getUnit("m/s"), speed.getUnit());
+        assertTrue(unitFactory.getUnit("m/s").isEquals(speed.getUnit()));
 
         PhysicalQuantity s2 = quantityFactory.of(1, "min");
         PhysicalQuantity acceleration = speed.divide(s2);
@@ -145,7 +144,7 @@ public class PhysicalQuantityTest {
                 compare(
                         BigDecimal.ONE.divide(BigDecimal.valueOf(3),  DEFAULT),
                         acceleration.getAmount()));
-        assertEquals(unitFactory.getUnit("m/s^2"), acceleration.getUnit());
+        assertTrue(unitFactory.getUnit("m/s^2").isEquals(acceleration.getUnit()));
     }
 
     @Test
@@ -154,13 +153,14 @@ public class PhysicalQuantityTest {
         PhysicalQuantity ms = quantityFactory.of(40, "s");
         PhysicalQuantity mss = quantityFactory.of(2, "s");
 
-        PhysicalQuantity acceleration = m.divide(ms).divide(mss);
+        PhysicalQuantity speed = m.divide(ms);
+        PhysicalQuantity acceleration = speed.divide(mss);
         assertEquals(0, compare(10, acceleration.getAmount()));
-        assertEquals(unitFactory.getUnit("m/s^2"), acceleration.getUnit());
+        assertTrue(unitFactory.getUnit("m/s^2").isEquals(acceleration.getUnit()));
 
         PhysicalQuantity kmhAcceleration = acceleration.convertTo("km/h^2");
-        assertEquals(0, compare(36, kmhAcceleration.getAmount()));
-        assertEquals(unitFactory.getUnit("km/h^2"), kmhAcceleration.getUnit());
+        assertEquals(0, compare(129600, kmhAcceleration.getAmount()));
+        assertTrue(unitFactory.getUnit("km/h^2").isEquals(kmhAcceleration.getUnit()));
     }
     
     @Test

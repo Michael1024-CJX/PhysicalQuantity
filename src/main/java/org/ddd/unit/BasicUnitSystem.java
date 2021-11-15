@@ -8,18 +8,18 @@ import java.util.List;
  *
  * @author chenjx
  */
-public class AtomicUnitSystem extends AbstractUnitSystem implements UnitSystem {
+public class BasicUnitSystem implements UnitSystem {
     /**
      * 属于该物理量的单位容器
      */
     private UnitContainer unitContainer;
 
-    public AtomicUnitSystem(UnitContainer unitContainer) {
+    public BasicUnitSystem(UnitContainer unitContainer) {
         this.unitContainer = unitContainer;
     }
 
     public Unit registerUnit(String symbol) {
-        Unit atomicUnit = new Unit(UnitSymbol.of(symbol), this);
+        Unit atomicUnit = new BasicUnit(UnitSymbol.of(symbol), this);
         unitContainer.addUnit(atomicUnit);
         return atomicUnit;
     }
@@ -34,8 +34,22 @@ public class AtomicUnitSystem extends AbstractUnitSystem implements UnitSystem {
     }
 
     @Override
+    public Unit getUnit(UnitSymbol symbol) {
+        return unitContainer.getUnit(symbol);
+    }
+
+    @Override
+    public ConversionRate getConversionRate(UnitSymbol from, UnitSymbol to) {
+        Ratio ratio = unitContainer.calculateRatio(from, to);
+        if (ratio == null) {
+            return null;
+        }
+        return new ConversionRate(getUnit(from), getUnit(to), ratio);
+    }
+
+    @Override
     public UnitSymbol adapt(UnitSymbol from, UnitSymbol target) {
-        List<UnitSymbol> targetSingleSymbol = target.splitIntoSingleSymbol();
+        List<UnitSymbol> targetSingleSymbol = target.getBasicSymbols();
 
         ArrayList<UnitSymbol> result = new ArrayList<>();
         for (UnitSymbol symbol : targetSingleSymbol) {
@@ -43,20 +57,6 @@ public class AtomicUnitSystem extends AbstractUnitSystem implements UnitSystem {
                 result.add(symbol.base());
             }
         }
-        return result.stream().reduce(UnitSymbol::appendWith).orElse(from);
-    }
-
-    @Override
-    Unit doGet(UnitSymbol symbol) {
-        return unitContainer.getUnit(symbol);
-    }
-
-    @Override
-    ConversionRate doGetConversionRate(UnitSymbol from, UnitSymbol to) {
-        Ratio ratio = unitContainer.calculateRatio(from, to);
-        if (ratio == null) {
-            return null;
-        }
-        return new ConversionRate(getUnit(from), getUnit(to), ratio);
+        return result.stream().reduce(UnitSymbol::times).orElse(from);
     }
 }
