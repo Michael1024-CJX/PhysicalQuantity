@@ -33,23 +33,24 @@ public class CompoundUnit implements Unit {
         while (unitIterator.hasNext() && !basicSymbols.isEmpty()) {
 
             Unit unit = unitIterator.next();
-            if (!removeSameTypeSymbol(basicSymbols, unit)) {
+            int index = getSameTypeSymbolIndex(basicSymbols, unit);
+            if (index == -1) {
                 return false;
             }
+            basicSymbols.remove(index);
         }
 
         return !unitIterator.hasNext() && basicSymbols.isEmpty();
     }
 
-    private boolean removeSameTypeSymbol(List<UnitSymbol> basicSymbols, Unit unit) {
+    private int getSameTypeSymbolIndex(List<UnitSymbol> basicSymbols, Unit unit) {
         for (int i = 0; i < basicSymbols.size(); i++) {
             UnitSymbol unitSymbol = basicSymbols.get(i);
             if (unit.isSameTypeAs(unitSymbol)) {
-                basicSymbols.remove(i);
-                return true;
+                return i;
             }
         }
-        return false;
+        return -1;
     }
 
     @Override
