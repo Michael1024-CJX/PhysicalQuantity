@@ -57,12 +57,16 @@ public class CompoundUnit implements Unit {
         if (!isSameTypeAs(target)) {
             return null;
         }
-        List<UnitSymbol> singleSymbol = target.getBasicSymbols();
-        List<Unit> targetUnits = new ArrayList<>(units.size());
+        Iterator<Unit> unitIterator = this.iterator();
+        List<UnitSymbol> basicSymbols = target.getBasicSymbols();
         Ratio ratio = Ratio.ONE_RATIO;
+        List<Unit> targetUnits = new ArrayList<>(units.size());
+        while (unitIterator.hasNext()) {
+            Unit unit = unitIterator.next();
+            int size = basicSymbols.size();
 
-        for (UnitSymbol unitSymbol : singleSymbol) {
-            for (Unit unit : units) {
+            for (int i = 0; i < size; i++) {
+                UnitSymbol unitSymbol = basicSymbols.get(i);
                 if (unit.isSameTypeAs(unitSymbol)) {
                     ConversionRate rate = unit.convertTo(unitSymbol);
                     if (rate == null) {
@@ -70,13 +74,13 @@ public class CompoundUnit implements Unit {
                     }
                     ratio = ratio.times(rate.getRatio());
                     targetUnits.add(rate.denominatorUnit());
+                    basicSymbols.remove(i);
                     break;
                 }
             }
         }
         return new ConversionRate(this, new CompoundUnit(targetUnits), ratio);
     }
-
 
     @Override
     public ConversionRate adaptTo(UnitSymbol target) {
