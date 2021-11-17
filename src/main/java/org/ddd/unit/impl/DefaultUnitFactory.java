@@ -35,11 +35,11 @@ public class DefaultUnitFactory implements UnitFactory {
             return PowerUnit.ofPositive(baseUnit);
         }
 
-        List<UnitSymbol> singleSymbol = unitSymbol.getBasicSymbols();
+        List<UnitSymbol> singleSymbol = unitSymbol.basicSymbols();
         List<Unit> units = singleSymbol.stream()
                 .map(this::getSingleSymbolUnit)
                 .collect(Collectors.toList());
-        return new CompoundUnit(units);
+        return CompoundUnit.create(units);
     }
 
     private Unit getSingleSymbolUnit(UnitSymbol unitSymbol) {

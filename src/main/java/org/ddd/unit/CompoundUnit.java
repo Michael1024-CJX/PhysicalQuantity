@@ -10,9 +10,24 @@ public class CompoundUnit implements Unit {
     private List<Unit> units;
     private UnitSymbol symbol;
 
-    public CompoundUnit(List<Unit> units) {
+    private CompoundUnit(UnitSymbol symbol, List<Unit> units) {
+        this.symbol = symbol;
         this.units = units;
-        this.symbol = createSymbol();
+    }
+
+    public static Unit create(List<Unit> units) {
+        UnitSymbol symbol = createSymbol(units);
+        if (symbol == null) {
+            return null;
+        }
+        return new CompoundUnit(symbol, units);
+    }
+
+    private static UnitSymbol createSymbol(List<Unit> units) {
+        return units.stream()
+                .map(Unit::getSymbol)
+                .reduce(UnitSymbol::times)
+                .orElse(null);
     }
 
     @Override
@@ -27,7 +42,7 @@ public class CompoundUnit implements Unit {
      */
     @Override
     public boolean isSameTypeAs(UnitSymbol symbol) {
-        List<UnitSymbol> basicSymbols = symbol.getBasicSymbols();
+        List<UnitSymbol> basicSymbols = symbol.basicSymbols();
         Iterator<Unit> unitIterator = this.iterator();
 
         while (unitIterator.hasNext() && !basicSymbols.isEmpty()) {
@@ -59,7 +74,7 @@ public class CompoundUnit implements Unit {
             return null;
         }
         Iterator<Unit> unitIterator = this.iterator();
-        List<UnitSymbol> basicSymbols = target.getBasicSymbols();
+        List<UnitSymbol> basicSymbols = target.basicSymbols();
         Ratio ratio = Ratio.ONE_RATIO;
         List<Unit> targetUnits = new ArrayList<>(units.size());
         while (unitIterator.hasNext()) {
@@ -80,7 +95,7 @@ public class CompoundUnit implements Unit {
                 }
             }
         }
-        return new ConversionRate(this, new CompoundUnit(targetUnits), ratio);
+        return new ConversionRate(this, CompoundUnit.create(targetUnits), ratio);
     }
 
     @Override
@@ -94,26 +109,19 @@ public class CompoundUnit implements Unit {
                 targetUnits.add(rate.denominatorUnit());
             }
         }
-        return new ConversionRate(this, new CompoundUnit(targetUnits), ratio);
+        return new ConversionRate(this, CompoundUnit.create(targetUnits), ratio);
     }
 
     @Override
     public Unit opposite() {
         List<Unit> oppositeUnits = units.stream().map(Unit::opposite).collect(Collectors.toList());
 
-        return new CompoundUnit(oppositeUnits);
+        return CompoundUnit.create(oppositeUnits);
     }
 
     @Override
     public Iterator<Unit> iterator() {
         return new CompoundUnitIterator(units.iterator());
-    }
-
-    private UnitSymbol createSymbol() {
-        return units.stream()
-                .map(Unit::getSymbol)
-                .reduce(UnitSymbol::times)
-                .orElseThrow(IllegalArgumentException::new);
     }
 
     @Override

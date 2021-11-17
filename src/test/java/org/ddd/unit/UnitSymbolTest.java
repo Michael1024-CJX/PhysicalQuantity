@@ -7,6 +7,41 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 public class UnitSymbolTest {
+    @Test
+    public void testCreateSymbol() {
+        UnitSymbol m = UnitSymbol.of("m");
+        assertEquals("m", m.symbol());
+
+        UnitSymbol ms = UnitSymbol.of("m*s");
+        assertEquals("m*s", ms.symbol());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testCreateNullSymbol() {
+        UnitSymbol m = UnitSymbol.of(null);
+        fail();
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testCreateEmptySymbol() {
+        UnitSymbol m = UnitSymbol.of(" ");
+        fail();
+    }
+
+    @Test
+    public void testEquals() {
+        UnitSymbol m1 = UnitSymbol.of("m^1");
+        UnitSymbol m2= UnitSymbol.of("m");
+        assertEquals(m1, m2);
+
+        UnitSymbol mp2 = UnitSymbol.of("m^2");
+        UnitSymbol m= UnitSymbol.of("m");
+        assertNotEquals(mp2, m);
+
+        UnitSymbol ms1 = UnitSymbol.of("m/s");
+        UnitSymbol ms2 = UnitSymbol.of("m*s^-1");
+        assertEquals(ms1, ms2);
+    }
 
     @Test
     public void isBasic() {
@@ -20,39 +55,40 @@ public class UnitSymbolTest {
         assertFalse(mds.isBasic());
 
         UnitSymbol mds2 = UnitSymbol.of("m/s^2");
-        assertFalse(mds.isBasic());
+        assertFalse(mds2.isBasic());
     }
 
 
 
     @Test
-    public void split() {
+    public void basicSymbols() {
         UnitSymbol m = UnitSymbol.of("m");
-        UnitSymbol mp2 = UnitSymbol.of("m^2");
-        UnitSymbol mds2 = UnitSymbol.of("m/s^2");
-        UnitSymbol ns = UnitSymbol.of("s^-1");
-        UnitSymbol mds2Ands = UnitSymbol.of("m/s^2*g");
-        UnitSymbol ng = UnitSymbol.of("g^-1");
 
-        List<UnitSymbol> split = m.getBasicSymbols();
+
+        List<UnitSymbol> split = m.basicSymbols();
         assertEquals(1, split.size());
         assertEquals(m, split.get(0));
 
 
-        List<UnitSymbol> mp2Split = mp2.getBasicSymbols();
+        UnitSymbol mp2 = UnitSymbol.of("m^2");
+        List<UnitSymbol> mp2Split = mp2.basicSymbols();
         assertEquals(2, mp2Split.size());
         assertEquals(m, mp2Split.get(0));
         assertEquals(m, mp2Split.get(1));
 
 
-        List<UnitSymbol> mds2Split = mds2.getBasicSymbols();
+        UnitSymbol mds2 = UnitSymbol.of("m/s^2");
+        UnitSymbol ns = UnitSymbol.of("s^-1");
+        List<UnitSymbol> mds2Split = mds2.basicSymbols();
         assertEquals(3, mds2Split.size());
         assertEquals(m, mds2Split.get(0));
         assertEquals(ns, mds2Split.get(1));
         assertEquals(ns, mds2Split.get(2));
 
 
-        List<UnitSymbol> basicSymbols = mds2Ands.getBasicSymbols();
+        UnitSymbol mds2Ands = UnitSymbol.of("m/s^2*g");
+        UnitSymbol ng = UnitSymbol.of("g^-1");
+        List<UnitSymbol> basicSymbols = mds2Ands.basicSymbols();
         assertEquals(4, basicSymbols.size());
         assertEquals(m, mds2Split.get(0));
         assertEquals(ns, basicSymbols.get(1));
@@ -73,7 +109,7 @@ public class UnitSymbolTest {
     }
 
     @Test
-    public void power() {
+    public void index() {
         UnitSymbol m = UnitSymbol.of("m");
         assertEquals(1, m.index());
 
@@ -93,16 +129,28 @@ public class UnitSymbolTest {
         UnitSymbol ms = UnitSymbol.of("m/s");
         UnitSymbol s = UnitSymbol.of("s");
         assertEquals(UnitSymbol.of("m"), ms.times(s));
+
+        UnitSymbol nm = UnitSymbol.of("m^-1");
+        assertNull(m1.times(nm));
     }
 
     @Test
-    public void testEquals() {
-        UnitSymbol m2 = UnitSymbol.of("m^2");
-        UnitSymbol m= UnitSymbol.of("m");
-        assertNotEquals(m2, m);
+    public void power() {
+        UnitSymbol m = UnitSymbol.of("m");
+        UnitSymbol m2 = m.power(2);
+        assertEquals(UnitSymbol.of("m^2"), m2);
 
-        UnitSymbol ms1 = UnitSymbol.of("m/s");
-        UnitSymbol ms2 = UnitSymbol.of("m*s^-1");
-        assertEquals(ms1, ms2);
+
+        UnitSymbol nm = UnitSymbol.of("m^-1");
+        UnitSymbol nm2 = nm.power(2);
+        assertEquals(UnitSymbol.of("m^-2"), nm2);
+
+        UnitSymbol ms = UnitSymbol.of("m/s");
+        UnitSymbol ms2 = ms.power(2);
+        assertEquals(UnitSymbol.of("m^2*s^-2"), ms2);
+
+        UnitSymbol nms = UnitSymbol.of("m/s");
+        UnitSymbol nms2 = nms.power(-2);
+        assertEquals(UnitSymbol.of("m^-2*s^2"), nms2);
     }
 }

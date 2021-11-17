@@ -5,7 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 单位符号，用于写作
+ * 单位符号
  *
  * @author chenjx
  */
@@ -19,8 +19,8 @@ public final class UnitSymbol {
     private final String symbol;
 
     private UnitSymbol(String symbol) {
-        if (symbol == null || symbol.length() < 1) {
-            throw new IllegalArgumentException("符号不能为空");
+        if (symbol == null || symbol.trim().length() < 1) {
+            throw new NullPointerException("符号不能为空");
         }
         this.symbol = symbol;
     }
@@ -30,20 +30,59 @@ public final class UnitSymbol {
     }
 
     /**
-     * 判断符号是否只有一种，如 m, kg, h等
-     * 组合单位的符号将返回false，如 m/s, m^2。
+     * 判断符号是否是基本单位，基本单位如：m, cm, g, kg等
+     * 组合单位将返回false，如 m/s, m^2, m*kg/s^2
      */
     public boolean isBasic() {
         Matcher matcher = COMBINATION_JOINER.matcher(symbol);
         return !matcher.find();
     }
 
-    public boolean isSingle() {
+    /**
+     * 获取单位的底数，如 kg, cm^2 ,m^3将返回底数 kg, cm, m
+     * 对于复合单位，直接返回本身，如 m/s^2 返回 m/s^2
+     */
+    public UnitSymbol base() {
+        if (isSingle()) {
+            int index = symbol.indexOf(POWER_JOINER);
+            if (index != -1) {
+                return UnitSymbol.of(symbol.substring(0, index));
+            }
+        }
+        return this;
+    }
+
+    /**
+     * 获取单位的指数
+     */
+    public int index() {
+        if (isSingle()) {
+            int index = symbol.indexOf(POWER_JOINER);
+            if (index != -1) {
+                return Integer.parseInt(symbol.substring(index + 1));
+            }
+        }
+        return 1;
+    }
+
+    /**
+     * 判断符号是否只有一种，如 m, kg, h等
+     * 组合单位的符号将返回false，如 m/s, m^2。
+     */
+    private boolean isSingle() {
         Matcher matcher = CALC_JOINER.matcher(symbol);
         return !matcher.find();
     }
 
-    public List<UnitSymbol> getBasicSymbols() {
+    /**
+     * 获取组成单位的基本单位列表。
+     * 注意以 “/” 为分割线，“/”后面的单位都转为负幂
+     * 如：
+     *   m     -> [m]
+     *   m/s   -> [m, s^-1]
+     *   m/s^2 -> [m, s^-1, s^-1]
+     */
+    public List<UnitSymbol> basicSymbols() {
         List<UnitSymbol> singleSymbol = splitIntoSingleSymbol();
         List<UnitSymbol> basicSymbols = new ArrayList<>();
         for (UnitSymbol unitSymbol : singleSymbol) {
@@ -52,31 +91,8 @@ public final class UnitSymbol {
         return basicSymbols;
     }
 
-    private List<UnitSymbol> splitPowerSymbol() {
-        int absIndex = Math.abs(index());
-        if (absIndex == 1) {
-            return Collections.singletonList(this);
-        }
-
-        int subIndex = indexSymbol();
-        UnitSymbol base = base();
-        ArrayList<UnitSymbol> unitSymbols = new ArrayList<>(absIndex);
-        for (int i = 0; i < absIndex; i++) {
-            unitSymbols.add(base.power(subIndex));
-        }
-        return unitSymbols;
-    }
-
     /**
-     * 正幂返回1, 负幂返回-1, 0返回0
-     */
-    private int indexSymbol() {
-        int index = index();
-        return (index >> 31) - (-index >> 31);
-    }
-
-    /**
-     * 将复合单位拆分成原子单位，m/s拆分成 m 和 s^-1, m/s^2 拆分成 m 和 s^-2
+     * 将复合单位拆分成单符号单位，m/s拆分成 m 和 s^-1, m/s^2 拆分成 m 和 s^-2
      */
     private List<UnitSymbol> splitIntoSingleSymbol() {
         List<UnitSymbol> unitSymbols = new ArrayList<>();
@@ -109,39 +125,56 @@ public final class UnitSymbol {
     }
 
     /**
-     * 对于原子单位带幂，如 kg, cm^2 ,m^3等，返回底数 kg, cm, m
-     * 对于复合单位，直接返回本身，如 m/s^2 返回 m/s^2
-     *
-     * @return 幂单位的底数
+     * 将单符号单位分解成幂为 1 或 -1 的基本单位。
+     * 如：
+     *   m    -> [m]
+     *   m^2  -> [m, m]
+     *   m^-2 -> [m^-1, m^-1]
+     *   m/s  -> [m/s]
      */
-    public UnitSymbol base() {
-        if (isSingle()) {
-            int index = symbol.indexOf(POWER_JOINER);
-            if (index != -1) {
-                return UnitSymbol.of(symbol.substring(0, index));
-            }
+    private List<UnitSymbol> splitPowerSymbol() {
+        int absIndex = Math.abs(index());
+        if (absIndex == 1) {
+            return Collections.singletonList(this);
         }
-        return this;
+
+        int subIndex = indexSymbol();
+        UnitSymbol base = base();
+        ArrayList<UnitSymbol> unitSymbols = new ArrayList<>(absIndex);
+        for (int i = 0; i < absIndex; i++) {
+            unitSymbols.add(base.power(subIndex));
+        }
+        return unitSymbols;
     }
 
     /**
-     * @return 幂单位的指数
+     * 正幂返回1, 负幂返回-1, 0返回0
      */
-    public int index() {
-        if (isSingle()) {
-            int index = symbol.indexOf(POWER_JOINER);
-            if (index != -1) {
-                return Integer.parseInt(symbol.substring(index + 1));
-            }
+    private int indexSymbol() {
+        int index = index();
+        return (index >> 31) - (-index >> 31);
+    }
+
+    /**
+     * 将单位符号的幂与power相乘
+     */
+    UnitSymbol power(int power) {
+        if (!isSingle()) {
+            List<UnitSymbol> singleSymbol = splitIntoSingleSymbol();
+            return singleSymbol.stream().map(s -> s.power(power)).reduce(UnitSymbol::appendWith).orElse(null);
         }
-        return 1;
+        int finalPower = this.index() * power;
+        if (finalPower == 1) {
+            return this.base();
+        } else {
+            return UnitSymbol.of(this.base().symbol + POWER_JOINER + finalPower);
+        }
     }
 
-    public String symbol() {
-        return symbol;
-    }
-
-    public UnitSymbol times(UnitSymbol other) {
+    /**
+     * 单位符号乘以单位符号，对于同底的单位相乘，指数相加
+     */
+    UnitSymbol times(UnitSymbol other) {
         Map<UnitSymbol, Integer> symbolPowerMap = singleSymbolPowerMap();
 
         List<UnitSymbol> otherSymbols = other.splitIntoSingleSymbol();
@@ -153,9 +186,12 @@ public final class UnitSymbol {
         return buildSymbol(symbolPowerMap);
     }
 
+    /**
+     * 将单位拆分成基本符号与其指数的映射
+     */
     private Map<UnitSymbol, Integer> singleSymbolPowerMap() {
         List<UnitSymbol> originSymbols = this.splitIntoSingleSymbol();
-        Map<UnitSymbol, Integer> symbolPowerMap = new LinkedHashMap<>();
+        Map<UnitSymbol, Integer> symbolPowerMap = new HashMap<>();
 
         for (UnitSymbol originSymbol : originSymbols) {
             symbolPowerMap.merge(originSymbol.base(), originSymbol.index(), Integer::sum);
@@ -163,32 +199,38 @@ public final class UnitSymbol {
         return symbolPowerMap;
     }
 
+    /**
+     * 将基本符号与其指数的映射组合成符号
+     */
     private UnitSymbol buildSymbol(Map<UnitSymbol, Integer> symbolPowerMap) {
         return symbolPowerMap.entrySet()
                 .stream()
                 .filter(entry -> entry.getValue() != 0)
-//                .sorted((e1,e2) -> e2.getValue().compareTo(e1.getValue()))
+                .sorted(Comparator.comparing(e -> e.getKey().symbol))
                 .map(entry -> entry.getValue() == 1 ? entry.getKey() : entry.getKey().power(entry.getValue()))
                 .reduce(UnitSymbol::appendWith)
                 .orElse(null);
-    }
-
-    public UnitSymbol power(int power) {
-        int finalPower = this.index() * power;
-        if (finalPower == 1) {
-            return this.base();
-        } else {
-            return UnitSymbol.of(this.base().symbol + POWER_JOINER + finalPower);
-        }
     }
 
     private UnitSymbol appendWith(UnitSymbol symbol) {
         return UnitSymbol.of(this.symbol + "*" + symbol.symbol);
     }
 
+    /**
+     * 将单位符号规范格式,并按单位字符排序
+     * 如：
+     *  m    -> m
+     *  m*m  -> m^2
+     *  m·kg -> m*kg
+     *  m/s  -> m*s^-1
+     */
     public UnitSymbol format() {
         Map<UnitSymbol, Integer> unitSymbolIntegerMap = singleSymbolPowerMap();
         return buildSymbol(unitSymbolIntegerMap);
+    }
+
+    public String symbol() {
+        return symbol;
     }
 
     @Override

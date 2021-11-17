@@ -40,7 +40,7 @@ public class BasicUnit implements Unit {
 
     @Override
     public ConversionRate adaptTo(UnitSymbol target) {
-        List<UnitSymbol> singleSymbol = target.getBasicSymbols();
+        List<UnitSymbol> singleSymbol = target.basicSymbols();
         for (UnitSymbol unitSymbol : singleSymbol) {
             UnitSymbol base = unitSymbol.base();
             if (system.containsUnit(base)) {

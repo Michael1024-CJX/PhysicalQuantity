@@ -46,17 +46,4 @@ public class BasicUnitSystem implements UnitSystem {
         }
         return new ConversionRate(getUnit(from), getUnit(to), ratio);
     }
-
-    @Override
-    public UnitSymbol adapt(UnitSymbol from, UnitSymbol target) {
-        List<UnitSymbol> targetSingleSymbol = target.getBasicSymbols();
-
-        ArrayList<UnitSymbol> result = new ArrayList<>();
-        for (UnitSymbol symbol : targetSingleSymbol) {
-            if (containsUnit(symbol.base())) {
-                result.add(symbol.base());
-            }
-        }
-        return result.stream().reduce(UnitSymbol::times).orElse(from);
-    }
 }
