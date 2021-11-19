@@ -1,8 +1,5 @@
 package org.ddd.unit;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * 原子单位制
  *

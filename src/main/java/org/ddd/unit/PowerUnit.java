@@ -1,6 +1,5 @@
 package org.ddd.unit;
 
-import java.util.Iterator;
 import java.util.Objects;
 
 /**
