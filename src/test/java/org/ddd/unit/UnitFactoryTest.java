@@ -5,7 +5,6 @@ import org.ddd.unit.impl.YAMLUnitRegister;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 
@@ -19,7 +18,7 @@ public class UnitFactoryTest {
 
     @Before
     public void before() {
-        UnitRegister unitRegister = new YAMLUnitRegister(new File("src/test/resources/unit/"));
+        UnitRegister unitRegister = new YAMLUnitRegister();
         factory = new DefaultUnitFactory(unitRegister);
     }
 
@@ -54,7 +53,7 @@ public class UnitFactoryTest {
     @Test
     public void testHConvertToM() {
         Unit h = factory.getUnit("h");
-        Unit m = factory.getUnit("m");
+        Unit m = factory.getUnit("尺");
 
         ConversionRate ratioOfHToM = h.convertTo(m.getSymbol());
 

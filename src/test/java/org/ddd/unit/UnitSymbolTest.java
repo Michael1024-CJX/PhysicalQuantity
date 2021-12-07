@@ -16,18 +16,6 @@ public class UnitSymbolTest {
         assertEquals("m*s", ms.symbol());
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testCreateNullSymbol() {
-        UnitSymbol m = UnitSymbol.of(null);
-        fail();
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testCreateEmptySymbol() {
-        UnitSymbol m = UnitSymbol.of(" ");
-        fail();
-    }
-
     @Test
     public void testEquals() {
         UnitSymbol m1 = UnitSymbol.of("m^1");
@@ -129,9 +117,6 @@ public class UnitSymbolTest {
         UnitSymbol ms = UnitSymbol.of("m/s");
         UnitSymbol s = UnitSymbol.of("s");
         assertEquals(UnitSymbol.of("m"), ms.times(s));
-
-        UnitSymbol nm = UnitSymbol.of("m^-1");
-        assertNull(m1.times(nm));
     }
 
     @Test

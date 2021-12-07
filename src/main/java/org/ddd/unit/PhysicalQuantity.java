@@ -72,7 +72,7 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
     }
 
     public PhysicalQuantity multiply(Number multiplicand, MathContext mc) {
-        Number multiply = NumberUtil.multiply(this.amount, multiplicand);
+        Number multiply = NumberUtil.multiply(this.amount, multiplicand, mc);
         return PhysicalQuantity.of(multiply, this.unit);
     }
 
@@ -140,6 +140,6 @@ public class PhysicalQuantity implements Comparable<PhysicalQuantity> {
 
     @Override
     public String toString() {
-        return amount.toString() + unit.toString();
+        return amount.toString() + (unit == null ? "" : unit.toString());
     }
 }

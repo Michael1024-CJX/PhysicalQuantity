@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
  * @author chenjx
  */
 public final class UnitSymbol {
+    static final UnitSymbol NIX = UnitSymbol.of("");
+
     private static final String MULTIPLY_JOINER = "*·";
     private static final String DIVIDE_JOINER = "/";
     private static final String POWER_JOINER = "^";
@@ -19,9 +21,6 @@ public final class UnitSymbol {
     private final String symbol;
 
     private UnitSymbol(String symbol) {
-        if (symbol == null || symbol.trim().length() < 1) {
-            throw new NullPointerException("符号不能为空");
-        }
         this.symbol = symbol;
     }
 
@@ -161,7 +160,7 @@ public final class UnitSymbol {
     UnitSymbol power(int power) {
         if (!isSingle()) {
             List<UnitSymbol> singleSymbol = splitIntoSingleSymbol();
-            return singleSymbol.stream().map(s -> s.power(power)).reduce(UnitSymbol::appendWith).orElse(null);
+            return singleSymbol.stream().map(s -> s.power(power)).reduce(UnitSymbol::appendWith).orElse(NIX);
         }
         int finalPower = this.index() * power;
         if (finalPower == 1) {
@@ -209,10 +208,17 @@ public final class UnitSymbol {
                 .sorted(Comparator.comparing(e -> e.getKey().symbol))
                 .map(entry -> entry.getValue() == 1 ? entry.getKey() : entry.getKey().power(entry.getValue()))
                 .reduce(UnitSymbol::appendWith)
-                .orElse(null);
+                .orElse(NIX);
     }
 
     private UnitSymbol appendWith(UnitSymbol symbol) {
+        if (symbol == NIX || this == NIX) {
+            if (symbol == NIX) {
+                return this;
+            }else {
+                return symbol;
+            }
+        }
         return UnitSymbol.of(this.symbol + "*" + symbol.symbol);
     }
 

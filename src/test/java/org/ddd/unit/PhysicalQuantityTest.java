@@ -2,10 +2,10 @@ package org.ddd.unit;
 
 import org.ddd.unit.impl.DefaultUnitFactory;
 import org.ddd.unit.impl.YAMLUnitRegister;
+import org.ddd.util.NumberUtil;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
 import java.math.BigDecimal;
 
 import static org.ddd.util.NumberUtil.*;
@@ -19,7 +19,7 @@ public class PhysicalQuantityTest {
     private UnitFactory unitFactory;
     @Before
     public void init() {
-        YAMLUnitRegister register = new YAMLUnitRegister(new File("src/test/resources/unit/"));
+        YAMLUnitRegister register = new YAMLUnitRegister();
         unitFactory = new DefaultUnitFactory(register);
         quantityFactory = new QuantityFactory(unitFactory);
     }
@@ -169,5 +169,19 @@ public class PhysicalQuantityTest {
         PhysicalQuantity cm = quantityFactory.of(100, "cm");
 
         assertEquals(0, m.compareTo(cm));
+    }
+
+    @Test
+    public void testNoUnit() {
+        PhysicalQuantity m1 = quantityFactory.of(1, "m");
+        PhysicalQuantity m2 = quantityFactory.of(2, "m");
+
+        PhysicalQuantity noUnit = m2.divide(m1);
+        assertEquals(0, NumberUtil.compare(2, noUnit.getAmount()));
+
+        PhysicalQuantity m4 = quantityFactory.of(4, "m");
+        PhysicalQuantity multiply = noUnit.multiply(m2);
+        System.out.println(multiply);
+        assertEquals(0, m4.compareTo(multiply));
     }
 }
